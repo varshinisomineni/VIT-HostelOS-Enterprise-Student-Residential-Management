@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.3rem;">Authorities Login</h2>
+            <p class="subtitle" style="font-size: 0.9rem;">Class Incharge, Warden, Dean & Staff</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1rem; font-size: 0.9rem;">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" style="font-size: 0.8rem;"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            <div class="mb-3">
+                <label for="username" class="form-label" style="font-size: 0.9rem;">
+                    <i class="fas fa-user"></i> Username
+                </label>
+                <input
+                    id="username"
+                    name="username"
+                    class="form-control form-control-lg"
+                    style="font-size: 1rem; padding: 0.6rem 0.8rem;"
+                    placeholder="Enter username"
+                    required>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label" style="font-size: 0.9rem;">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    class="form-control form-control-lg"
+                    style="font-size: 1rem; padding: 0.6rem 0.8rem;"
+                    placeholder="Enter password"
+                    required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100" style="font-size: 0.95rem; padding: 0.6rem;">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="auth-divider" style="margin: 1rem 0 0.8rem;">
+            <span style="font-size: 0.85rem;">New User?</span>
+        </div>
+
+        <a href="/register" class="btn btn-outline-primary btn-lg w-100" style="font-size: 0.95rem; padding: 0.6rem;">
+            <i class="fas fa-user-plus"></i> Create Account
+        </a>
+
+        <div class="auth-footer" style="padding: 1rem;">
+            <a href="/forgot-password" class="auth-link" style="font-size: 0.9rem;">
+                <i class="fas fa-key"></i> Forgot Password?
+            </a>
+        </div>
+
+
+    </div>
+</div>
+
+{% endblock %}

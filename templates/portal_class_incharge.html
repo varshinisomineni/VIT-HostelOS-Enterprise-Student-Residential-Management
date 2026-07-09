@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-chalkboard-teacher"></i> Class Incharge Portal
+                    </h1>
+                    <p class="admin-subtitle">Review and approve student leave applications</p>
+                </div>
+                <a href="/authorities" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+
+        <div class="admin-card attendance-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h4 style="font-size: 1.1rem; margin: 0;"><i class="fas fa-envelope-open-text"></i> Pending Leave Requests</h4>
+                <span class="badge bg-light text-dark">{{ leave_requests|length }}</span>
+            </div>
+            <div class="card-body p-2 p-md-3">
+                {% if leave_requests %}
+                <div class="request-list">
+                    {% for req in leave_requests %}
+                    <div class="request-card leave-request-row" data-request-id="{{ req.id }}">
+                        <div class="request-card-header">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="student-avatar-sm">{{ req.student.name[0]|upper }}</div>
+                                <div>
+                                    <h6 class="mb-0">{{ req.student.name }}</h6>
+                                    <small class="text-muted">{{ req.student.student_class }} &middot; Room {{ req.student.room_number or 'N/A' }}</small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <div class="teacher-status-display">
+                                    <span class="status-badge status-none"><i class="fas fa-hourglass-half"></i> Pending Review</span>
+                                </div>
+                                <div class="attendance-actions">
+                                    <button class="btn btn-mark-attendance mark-toggle-btn" type="button"><i class="fas fa-gavel"></i> Action</button>
+                                    <div class="attendance-menu" role="menu">
+                                        <button type="button" class="attendance-menu-item mark-present teacher-action" data-id="{{ req.id }}" data-status="Approved">
+                                            <i class="fas fa-check-circle"></i> Approve
+                                        </button>
+                                        <button type="button" class="attendance-menu-item mark-absent teacher-action" data-id="{{ req.id }}" data-status="Not Approved">
+                                            <i class="fas fa-times-circle"></i> Not Approve
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="request-card-body">
+                            <div class="request-meta-row">
+                                {% if req.from_date %}
+                                <span><i class="fas fa-calendar"></i> {{ req.from_date.strftime('%d %b %Y') }}{% if req.to_date %} → {{ req.to_date.strftime('%d %b %Y') }}{% endif %}</span>
+                                {% endif %}
+                                <span><i class="fas fa-envelope"></i> Parent: {{ req.student.parent_email or 'N/A' }}</span>
+                                <span><i class="fas fa-clock"></i> {{ req.submitted_at.strftime('%d %b %Y, %H:%M') if req.submitted_at else '-' }}</span>
+                            </div>
+                            <div class="request-message-box">
+                                <strong>Leave Message:</strong>
+                                <p>{{ req.leave_message }}</p>
+                            </div>
+                            {% if req.approval_image %}
+                            <div class="request-image-box">
+                                <strong><i class="fas fa-image"></i> Parent Approval:</strong>
+                                <img src="/static/uploads/leave_images/{{ req.approval_image }}" class="request-image mt-2">
+                            </div>
+                            {% endif %}
+                            <div class="rejection-reason-box d-none" id="reasonBox{{ req.id }}">
+                                <label class="form-label"><i class="fas fa-comment-alt"></i> Reason for Not Approving</label>
+                                <textarea class="form-control rejection-reason-input" rows="2" placeholder="Write reason..."></textarea>
+                                <button type="button" class="btn btn-danger btn-sm mt-2 submit-teacher-rejection" data-id="{{ req.id }}">
+                                    <i class="fas fa-paper-plane"></i> Submit
+                                </button>
+                            </div>
+                            <div class="forward-box d-none mt-3" id="forwardBox{{ req.id }}">
+                                <span class="status-badge status-present me-2"><i class="fas fa-check"></i> Approved by Class Incharge</span>
+                                <button type="button" class="btn btn-success btn-sm forward-warden-btn" data-id="{{ req.id }}">
+                                    <i class="fas fa-share"></i> Forward to Warden
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-envelope-open"></i></div><h5>No Pending Leave Requests</h5></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function closeAllMenus() {
+        document.querySelectorAll('.attendance-menu.show').forEach(m => m.classList.remove('show'));
+    }
+    document.querySelectorAll('.mark-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const menu = this.closest('.attendance-actions').querySelector('.attendance-menu');
+            const isOpen = menu.classList.contains('show');
+            closeAllMenus();
+            if (!isOpen) menu.classList.add('show');
+        });
+    });
+    document.addEventListener('click', closeAllMenus);
+
+    document.querySelectorAll('.teacher-action').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            closeAllMenus();
+            const id = this.dataset.id;
+            const status = this.dataset.status;
+            const row = document.querySelector(`.leave-request-row[data-request-id="${id}"]`);
+            const reasonBox = document.getElementById('reasonBox' + id);
+            const forwardBox = document.getElementById('forwardBox' + id);
+
+            if (status === 'Not Approved') {
+                reasonBox.classList.remove('d-none');
+                forwardBox.classList.add('d-none');
+                return;
+            }
+
+            const res = await fetch('/leave-requests/teacher-update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request_id: parseInt(id), status: status })
+            });
+            const data = await res.json();
+            if (data.success) {
+                reasonBox.classList.add('d-none');
+                forwardBox.classList.remove('d-none');
+                row.querySelector('.teacher-status-display').innerHTML =
+                    '<span class="status-badge status-present"><i class="fas fa-check"></i> Approved</span>';
+            }
+        });
+    });
+
+    document.querySelectorAll('.submit-teacher-rejection').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            const row = document.querySelector(`.leave-request-row[data-request-id="${id}"]`);
+            const reason = row.querySelector('.rejection-reason-input').value.trim();
+            if (!reason) { alert('Please write a reason.'); return; }
+
+            const res = await fetch('/leave-requests/teacher-update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request_id: parseInt(id), status: 'Not Approved', reason: reason })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Rejection sent to student.');
+                location.reload();
+            }
+        });
+    });
+
+    document.querySelectorAll('.forward-warden-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            const res = await fetch('/leave-requests/forward-warden', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request_id: parseInt(id) })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Leave forwarded to Warden.');
+                location.reload();
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}
+

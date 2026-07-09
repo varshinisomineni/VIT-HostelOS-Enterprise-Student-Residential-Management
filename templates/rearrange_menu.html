@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container py-3 py-md-4">
+    <div class="admin-header" style="margin-bottom: 1.5rem;">
+        <h1 class="admin-title" style="font-size: 1.8rem;">
+            <i class="fas fa-arrows-alt"></i> Rearrange Menu Days
+        </h1>
+        <p class="admin-subtitle" style="font-size: 0.9rem;">
+            Drag to reorder days. The order will be displayed in the student timetable.
+        </p>
+        <div class="mt-2">
+            <a href="/dashboard" class="btn btn-outline-primary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <form method="POST" id="rearrangeForm">
+        <div class="sortable-list">
+            {% for item in menu %}
+            <div class="sortable-item" data-id="{{ item.id }}">
+                <div class="sortable-handle">
+                    <i class="fas fa-grip-vertical"></i>
+                </div>
+                <div class="sortable-content">
+                    <h5 class="sortable-day">{{ item.day | capitalize }}</h5>
+                    <div class="sortable-meals">
+                        <span class="meal-badge">
+                            <i class="fas fa-sun"></i> {{ item.breakfast[:20] }}{% if item.breakfast|length > 20 %}...{% endif %}
+                        </span>
+                        <span class="meal-badge">
+                            <i class="fas fa-utensils"></i> {{ item.lunch[:20] }}{% if item.lunch|length > 20 %}...{% endif %}
+                        </span>
+                        {% if item.snacks %}
+                        <span class="meal-badge">
+                            <i class="fas fa-cookie-bite"></i> {{ item.snacks[:20] }}{% if item.snacks|length > 20 %}...{% endif %}
+                        </span>
+                        {% endif %}
+                        <span class="meal-badge">
+                            <i class="fas fa-moon"></i> {{ item.dinner[:20] }}{% if item.dinner|length > 20 %}...{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Hidden input to store the order -->
+        <div id="orderContainer" style="display: none;"></div>
+
+        <div class="form-actions" style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-success btn-lg" style="font-size: 0.95rem; padding: 0.6rem 1.5rem; width: 100%;">
+                <i class="fas fa-save"></i> Save New Order
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Simple drag and drop reordering
+const sortableList = document.querySelector('.sortable-list');
+let draggedElement = null;
+
+// Add mouse events for desktop drag and drop
+document.querySelectorAll('.sortable-item').forEach(item => {
+    item.draggable = true;
+    
+    item.addEventListener('dragstart', function(e) {
+        draggedElement = this;
+        this.style.opacity = '0.5';
+        e.dataTransfer.effectAllowed = 'move';
+    });
+    
+    item.addEventListener('dragend', function(e) {
+        this.style.opacity = '1';
+        draggedElement = null;
+    });
+    
+    item.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (this !== draggedElement) {
+            this.style.borderTop = '3px solid #667eea';
+        }
+    });
+    
+    item.addEventListener('dragleave', function(e) {
+        this.style.borderTop = 'none';
+    });
+    
+    item.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderTop = 'none';
+        if (this !== draggedElement) {
+            sortableList.insertBefore(draggedElement, this);
+        }
+    });
+});
+
+// Touch events for mobile
+let touchStartY = 0;
+let touchItem = null;
+
+document.querySelectorAll('.sortable-item').forEach(item => {
+    item.addEventListener('touchstart', function(e) {
+        touchItem = this;
+        touchStartY = e.touches[0].clientY;
+        this.style.opacity = '0.7';
+    });
+    
+    item.addEventListener('touchmove', function(e) {
+        if (!touchItem) return;
+        const touchY = e.touches[0].clientY;
+        const diff = touchY - touchStartY;
+        
+        if (diff > 50) {
+            const next = this.nextElementSibling;
+            if (next) {
+                sortableList.insertBefore(this, next.nextElementSibling);
+                touchStartY = touchY;
+            }
+        } else if (diff < -50) {
+            const prev = this.previousElementSibling;
+            if (prev) {
+                sortableList.insertBefore(this, prev);
+                touchStartY = touchY;
+            }
+        }
+    });
+    
+    item.addEventListener('touchend', function(e) {
+        this.style.opacity = '1';
+        touchItem = null;
+    });
+});
+
+// Handle form submission to preserve order
+document.getElementById('rearrangeForm').addEventListener('submit', function(e) {
+    const orderContainer = document.getElementById('orderContainer');
+    orderContainer.innerHTML = '';
+    
+    document.querySelectorAll('.sortable-item').forEach((item, index) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'day_order';
+        input.value = item.dataset.id;
+        orderContainer.appendChild(input);
+    });
+});
+</script>
+
+{% endblock %}

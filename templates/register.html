@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.3rem;">Create Account</h2>
+            <p class="subtitle" style="font-size: 0.9rem;">Register as Authority</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1rem; font-size: 0.9rem;">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin: 1rem; font-size: 0.9rem;">
+            <i class="fas fa-check-circle"></i> {{ success }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form" style="padding: 1.5rem;">
+            <!-- Basic Information -->
+            <div class="form-section">
+                <h6 class="section-title" style="font-size: 0.95rem;">Account Info</h6>
+                
+                <div class="mb-2">
+                    <label for="username" class="form-label" style="font-size: 0.85rem;">
+                        <i class="fas fa-user"></i> Username
+                    </label>
+                    <input
+                        id="username"
+                        name="username"
+                        class="form-control form-control-lg"
+                        style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                        placeholder="Username"
+                        required
+                        minlength="3">
+                </div>
+
+                <div class="mb-2">
+                    <label for="role" class="form-label" style="font-size: 0.85rem;">
+                        <i class="fas fa-user-tag"></i> Role
+                    </label>
+                    <select id="role" name="role" class="form-control form-control-lg" style="font-size: 0.95rem; padding: 0.5rem 0.7rem;" required>
+                        <option value="">Select your role</option>
+                        <option value="class_incharge">Class Incharge</option>
+                        <option value="warden">Warden</option>
+                        <option value="carpenter">Carpenter</option>
+                        <option value="electrician">Electrician</option>
+                        <option value="plumber">Plumber</option>
+                        <option value="chief">Chief Cook</option>
+                        <option value="dean">Dean</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label for="email" class="form-label" style="font-size: 0.85rem;">
+                        <i class="fas fa-envelope"></i> Email
+                    </label>
+                    <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        class="form-control form-control-lg"
+                        style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                        placeholder="Email"
+                        required>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mb-2">
+                        <label for="password" class="form-label" style="font-size: 0.85rem;">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            class="form-control form-control-lg"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            placeholder="Min 6 chars"
+                            required
+                            minlength="6">
+                        <small class="text-muted" style="font-size: 0.75rem;">Min 6 characters</small>
+                    </div>
+
+                    <div class="col-12 mb-3">
+                        <label for="confirm_password" class="form-label" style="font-size: 0.85rem;">
+                            <i class="fas fa-lock"></i> Confirm
+                        </label>
+                        <input
+                            id="confirm_password"
+                            type="password"
+                            name="confirm_password"
+                            class="form-control form-control-lg"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            placeholder="Confirm password"
+                            required
+                            minlength="6">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Questions -->
+            <div class="form-section">
+                <h6 class="section-title" style="font-size: 0.95rem;">Security</h6>
+                <p class="section-subtitle" style="font-size: 0.8rem;">For password recovery</p>
+
+                <div class="mb-2">
+                    <label for="security_q1" class="form-label" style="font-size: 0.85rem;">
+                        <i class="fas fa-question-circle"></i> Q1
+                    </label>
+                    <input
+                        id="security_q1"
+                        type="text"
+                        name="security_q1"
+                        class="form-control form-control-lg"
+                        style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                        placeholder="Your question"
+                        required>
+                </div>
+
+                <div class="mb-2">
+                    <label for="security_a1" class="form-label" style="font-size: 0.85rem;">
+                        <i class="fas fa-reply"></i> Answer
+                    </label>
+                    <input
+                        id="security_a1"
+                        type="text"
+                        name="security_a1"
+                        class="form-control form-control-lg"
+                        style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                        placeholder="Answer 1"
+                        required>
+                </div>
+
+                <div class="mb-2">
+                    <label for="security_q2" class="form-label" style="font-size: 0.85rem;">
+                        <i class="fas fa-question-circle"></i> Q2
+                    </label>
+                    <input
+                        id="security_q2"
+                        type="text"
+                        name="security_q2"
+                        class="form-control form-control-lg"
+                        style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                        placeholder="Your question"
+                        required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="security_a2" class="form-label" style="font-size: 0.85rem;">
+                        <i class="fas fa-reply"></i> Answer
+                    </label>
+                    <input
+                        id="security_a2"
+                        type="text"
+                        name="security_a2"
+                        class="form-control form-control-lg"
+                        style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                        placeholder="Answer 2"
+                        required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100" style="font-size: 0.95rem; padding: 0.6rem; margin-bottom: 1rem;">
+                <i class="fas fa-user-plus"></i> Register
+            </button>
+        </form>
+
+        <div class="auth-footer" style="padding: 1rem;">
+            <p style="font-size: 0.9rem;">Have an account? 
+                <a href="/login" class="auth-link">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

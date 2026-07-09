@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container py-3 py-md-4">
+    <!-- Header -->
+    <div class="timetable-header mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="timetable-title" style="font-size: 1.6rem; margin: 0;">
+                    <i class="fas fa-calendar-check"></i> Weekly Food Schedule
+                </h1>
+                <p class="timetable-subtitle" style="font-size: 0.9rem; margin: 0.3rem 0 0 0;">Your hostel meal timetable</p>
+            </div>
+            <a href="/" class="btn btn-outline-primary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div>
+    </div>
+
+    <!-- College-Style Timetable -->
+    <div class="timetable-container mb-4">
+        <div class="table-wrapper">
+            <table class="timetable">
+                <thead>
+                    <tr class="table-header-row">
+                        <th class="day-header">Day</th>
+                        <th class="meal-header">
+                            <i class="fas fa-sun"></i><br>Breakfast
+                        </th>
+                        <th class="meal-header">
+                            <i class="fas fa-utensils"></i><br>Lunch
+                        </th>
+                        {% if menu|length > 0 and menu[0].snacks %}
+                        <th class="meal-header">
+                            <i class="fas fa-cookie-bite"></i><br>Snacks
+                        </th>
+                        {% endif %}
+                        <th class="meal-header">
+                            <i class="fas fa-moon"></i><br>Dinner
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in menu %}
+                    <tr class="table-data-row" data-day="{{ item.day }}">
+                        <td class="day-cell">
+                            <strong>{{ item.day | capitalize }}</strong>
+                        </td>
+                        <td class="meal-cell">
+                            <div class="meal-content">
+                                <span class="meal-text">{{ item.breakfast }}</span>
+                                {% if item.image_filename %}
+                                <div class="meal-image-mini">
+                                    <img src="/static/uploads/menu_images/{{ item.image_filename }}" alt="{{ item.day }}" title="View full image">
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="meal-cell">
+                            <span class="meal-text">{{ item.lunch }}</span>
+                        </td>
+                        {% if item.snacks %}
+                        <td class="meal-cell">
+                            <span class="meal-text">{{ item.snacks }}</span>
+                        </td>
+                        {% elif menu|length > 0 and menu[0].snacks %}
+                        <td class="meal-cell">
+                            <span class="meal-text text-muted">-</span>
+                        </td>
+                        {% endif %}
+                        <td class="meal-cell">
+                            <span class="meal-text">{{ item.dinner }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not menu %}
+        <div class="alert alert-info text-center py-4" style="font-size: 0.95rem;">
+            <i class="fas fa-info-circle"></i>
+            <p style="margin-top: 0.5rem; margin-bottom: 0;">No menu items available yet</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.timetable-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 1.5rem;
+    border-radius: 10px;
+    color: white;
+}
+
+.timetable-title {
+    font-weight: 700;
+}
+
+.timetable-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.timetable {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.timetable .table-header-row {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.day-header,
+.meal-header {
+    padding: 1rem 0.8rem;
+    text-align: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 2px solid #667eea;
+    white-space: nowrap;
+}
+
+.day-header {
+    width: 15%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.meal-header {
+    flex: 1;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.table-data-row {
+    border-bottom: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.table-data-row:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.day-cell {
+    padding: 1rem 0.8rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    text-align: center;
+    border-right: 2px solid #e0e0e0;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.meal-cell {
+    padding: 1rem 0.8rem;
+    border-right: 1px solid #e0e0e0;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.meal-cell:last-child {
+    border-right: none;
+}
+
+.meal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.meal-text {
+    color: #333;
+    font-weight: 500;
+    word-break: break-word;
+    line-height: 1.4;
+}
+
+.meal-text.text-muted {
+    color: #999;
+    font-style: italic;
+}
+
+.meal-image-mini {
+    margin-top: 0.5rem;
+}
+
+.meal-image-mini img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.meal-image-mini img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .day-header,
+    .meal-header {
+        padding: 0.8rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .day-cell {
+        padding: 0.8rem 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .meal-cell {
+        padding: 0.8rem 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .meal-image-mini img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .meal-text {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .timetable-header {
+        padding: 1rem;
+    }
+
+    .day-header,
+    .meal-header {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.75rem;
+    }
+
+    .day-cell {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    .meal-cell {
+        padding: 0.6rem 0.4rem;
+        font-size: 0.75rem;
+    }
+
+    .meal-image-mini img {
+        width: 50px;
+        height: 50px;
+    }
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+
+        <!-- Header -->
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-clipboard-check"></i> Attendance
+                    </h1>
+                    <p class="admin-subtitle" style="font-size: 0.85rem; margin: 0.3rem 0 0 0;">
+                        <i class="fas fa-calendar-day"></i> {{ today.strftime('%A, %d %B %Y') }}
+                    </p>
+                </div>
+                <a href="/dashboard" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 0.8rem;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-2 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="stat-card stat-present">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="presentCount">{{ present_count }}</span>
+                        <span class="stat-label">Present</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card stat-absent">
+                    <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="absentCount">{{ absent_count }}</span>
+                        <span class="stat-label">Absent</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card stat-leave">
+                    <div class="stat-icon"><i class="fas fa-plane-departure"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="leaveCount">{{ leave_count }}</span>
+                        <span class="stat-label">Leave</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card stat-unmarked">
+                    <div class="stat-icon"><i class="fas fa-question-circle"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="unmarkedCount">{{ unmarked_count }}</span>
+                        <span class="stat-label">Unmarked</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance List Card -->
+        <div class="admin-card attendance-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h4 style="font-size: 1.1rem; margin: 0;">
+                        <i class="fas fa-list-check"></i> Mark Attendance
+                    </h4>
+                    <span class="badge bg-light text-dark"><span id="visibleCount">{{ students|length }}</span> / {{ students|length }} students</span>
+                </div>
+                <div class="d-flex gap-2 flex-wrap align-items-center">
+                    <div class="attendance-filter-wrap">
+                        <button class="btn btn-sm btn-light attendance-action-btn filter-toggle-btn" type="button" id="filterToggleBtn">
+                            <i class="fas fa-filter"></i> Filter
+                            <span class="filter-active-label" id="filterActiveLabel">All</span>
+                        </button>
+                        <div class="attendance-filter-menu" id="filterMenu">
+                            <button type="button" class="attendance-filter-item active" data-filter="all">
+                                <i class="fas fa-users"></i> All Students
+                            </button>
+                            <button type="button" class="attendance-filter-item" data-filter="Present">
+                                <i class="fas fa-check-circle text-success"></i> Present
+                            </button>
+                            <button type="button" class="attendance-filter-item" data-filter="Absent">
+                                <i class="fas fa-times-circle text-danger"></i> Absent
+                            </button>
+                            <button type="button" class="attendance-filter-item" data-filter="Leave">
+                                <i class="fas fa-plane-departure text-warning"></i> Leave
+                            </button>
+                            <button type="button" class="attendance-filter-item" data-filter="unmarked">
+                                <i class="fas fa-question-circle text-secondary"></i> Not Marked
+                            </button>
+                        </div>
+                    </div>
+                    <a href="/attendance/download" class="btn btn-sm btn-light attendance-action-btn">
+                        <i class="fas fa-download"></i> Download CSV
+                    </a>
+                    <form method="POST" action="/attendance/clear" class="d-inline"
+                          onsubmit="return confirm('Clear ALL attendance records? This cannot be undone.')">
+                        <button type="submit" class="btn btn-sm btn-outline-light attendance-action-btn">
+                            <i class="fas fa-eraser"></i> Clear All
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card-body p-2 p-md-3">
+                {% if students %}
+                <div class="attendance-list" id="attendanceList">
+                    {% for student in students %}
+                    {% set current_status = attendance_map.get(student.id, '') %}
+                    <div class="attendance-row" data-student-id="{{ student.id }}" data-status="{{ current_status }}">
+                        <div class="attendance-student">
+                            <div class="student-avatar-sm">{{ student.name[0]|upper }}</div>
+                            <div>
+                                <h6 class="mb-0 attendance-name">{{ student.name }}</h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-chalkboard"></i> {{ student.student_class }}
+                                    {% if student.room_number %} &middot; Room {{ student.room_number }}{% endif %}
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="attendance-status-display">
+                            {% if current_status == 'Present' %}
+                            <span class="status-badge status-present"><i class="fas fa-check"></i> Present</span>
+                            {% elif current_status == 'Absent' %}
+                            <span class="status-badge status-absent"><i class="fas fa-times"></i> Absent</span>
+                            {% elif current_status == 'Leave' %}
+                            <span class="status-badge status-leave"><i class="fas fa-plane-departure"></i> Leave</span>
+                            {% else %}
+                            <span class="status-badge status-none"><i class="fas fa-minus"></i> Not Marked</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="attendance-actions">
+                            <button class="btn btn-mark-attendance mark-toggle-btn" type="button"
+                                    data-student-id="{{ student.id }}" aria-expanded="false">
+                                <i class="fas fa-pen"></i> Mark
+                            </button>
+                            <div class="attendance-menu" role="menu">
+                                <button type="button" class="attendance-menu-item mark-option mark-present"
+                                        data-student-id="{{ student.id }}" data-status="Present">
+                                    <i class="fas fa-check-circle"></i> Present
+                                </button>
+                                <button type="button" class="attendance-menu-item mark-option mark-absent"
+                                        data-student-id="{{ student.id }}" data-status="Absent">
+                                    <i class="fas fa-times-circle"></i> Absent
+                                </button>
+                                <button type="button" class="attendance-menu-item mark-option mark-leave"
+                                        data-student-id="{{ student.id }}" data-status="Leave">
+                                    <i class="fas fa-plane-departure"></i> Leave
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div id="noFilterResults" class="empty-state d-none">
+                    <div class="empty-state-icon"><i class="fas fa-filter"></i></div>
+                    <h5>No Students Found</h5>
+                    <p>No students match the selected filter.</p>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h5>No Registered Students</h5>
+                    <p>Students appear here automatically when they create an account in the Student Portal.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="attendanceToast" class="toast align-items-center text-white border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body" id="toastMessage"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toastEl = document.getElementById('attendanceToast');
+    const toastMsg = document.getElementById('toastMessage');
+    const toast = new bootstrap.Toast(toastEl, { delay: 2500 });
+    let currentFilter = 'all';
+
+    const filterLabels = {
+        'all': 'All',
+        'Present': 'Present',
+        'Absent': 'Absent',
+        'Leave': 'Leave',
+        'unmarked': 'Not Marked'
+    };
+
+    function applyFilter(filter) {
+        currentFilter = filter;
+        const rows = document.querySelectorAll('.attendance-row');
+        let visible = 0;
+
+        rows.forEach(row => {
+            const status = row.dataset.status || '';
+            let show = false;
+            if (filter === 'all') show = true;
+            else if (filter === 'unmarked') show = !status;
+            else show = status === filter;
+
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        document.getElementById('visibleCount').textContent = visible;
+        document.getElementById('filterActiveLabel').textContent = filterLabels[filter] || 'All';
+
+        document.querySelectorAll('.attendance-filter-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.filter === filter);
+        });
+
+        const noResults = document.getElementById('noFilterResults');
+        if (noResults) {
+            noResults.classList.toggle('d-none', visible > 0 || rows.length === 0);
+        }
+    }
+
+    const filterToggleBtn = document.getElementById('filterToggleBtn');
+    const filterMenu = document.getElementById('filterMenu');
+    if (filterToggleBtn && filterMenu) {
+        filterToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            filterMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', () => filterMenu.classList.remove('show'));
+        filterMenu.addEventListener('click', e => e.stopPropagation());
+
+        document.querySelectorAll('.attendance-filter-item').forEach(item => {
+            item.addEventListener('click', function() {
+                applyFilter(this.dataset.filter);
+                filterMenu.classList.remove('show');
+            });
+        });
+    }
+
+    function updateCounts() {
+        const rows = document.querySelectorAll('.attendance-row');
+        let present = 0, absent = 0, leave = 0, unmarked = 0;
+        rows.forEach(row => {
+            const s = row.dataset.status;
+            if (s === 'Present') present++;
+            else if (s === 'Absent') absent++;
+            else if (s === 'Leave') leave++;
+            else unmarked++;
+        });
+        document.getElementById('presentCount').textContent = present;
+        document.getElementById('absentCount').textContent = absent;
+        document.getElementById('leaveCount').textContent = leave;
+        document.getElementById('unmarkedCount').textContent = unmarked;
+    }
+
+    function updateStatusBadge(row, status) {
+        const display = row.querySelector('.attendance-status-display');
+        const badges = {
+            'Present': '<span class="status-badge status-present"><i class="fas fa-check"></i> Present</span>',
+            'Absent': '<span class="status-badge status-absent"><i class="fas fa-times"></i> Absent</span>',
+            'Leave': '<span class="status-badge status-leave"><i class="fas fa-plane-departure"></i> Leave</span>'
+        };
+        display.innerHTML = badges[status];
+        row.dataset.status = status;
+        row.classList.add('attendance-marked');
+        setTimeout(() => row.classList.remove('attendance-marked'), 600);
+    }
+
+    function showToast(message, type) {
+        toastEl.className = 'toast align-items-center text-white border-0 bg-' + type;
+        toastMsg.textContent = message;
+        toast.show();
+    }
+
+    function closeAllMenus() {
+        document.querySelectorAll('.attendance-menu.show').forEach(menu => menu.classList.remove('show'));
+        document.querySelectorAll('.mark-toggle-btn[aria-expanded="true"]').forEach(btn => {
+            btn.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    document.querySelectorAll('.mark-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const actions = this.closest('.attendance-actions');
+            const menu = actions.querySelector('.attendance-menu');
+            const isOpen = menu.classList.contains('show');
+            closeAllMenus();
+            if (!isOpen) {
+                menu.classList.add('show');
+                this.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+
+    document.addEventListener('click', closeAllMenus);
+
+    document.querySelectorAll('.attendance-menu').forEach(menu => {
+        menu.addEventListener('click', e => e.stopPropagation());
+    });
+
+    document.querySelectorAll('.mark-option').forEach(option => {
+        option.addEventListener('click', async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const studentId = this.dataset.studentId;
+            const status = this.dataset.status;
+            const row = document.querySelector(`.attendance-row[data-student-id="${studentId}"]`);
+            const studentName = row.querySelector('.attendance-name').textContent;
+
+            closeAllMenus();
+
+            try {
+                const res = await fetch('/attendance/mark', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_id: parseInt(studentId), status: status })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    updateStatusBadge(row, status);
+                    updateCounts();
+                    applyFilter(currentFilter);
+                    showToast(`${studentName} marked as ${status}`, 'success');
+                } else {
+                    showToast(data.error || 'Failed to mark attendance', 'danger');
+                }
+            } catch (err) {
+                showToast('Network error. Please try again.', 'danger');
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

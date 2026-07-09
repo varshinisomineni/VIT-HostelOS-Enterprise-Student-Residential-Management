@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-comment-dots"></i> Food Complaint
+                    </h1>
+                    <p class="admin-subtitle">Report food quality or menu issues</p>
+                </div>
+                <a href="/student/dashboard" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="admin-card">
+                    <div class="card-body p-3 p-md-4">
+                        <form method="POST" enctype="multipart/form-data" class="portal-form">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="fas fa-calendar-day"></i> Day</label>
+                                    <select name="day" class="form-control" required>
+                                        {% for d in day_options %}
+                                        <option value="{{ d }}" {% if d == current_day %}selected{% endif %}>{{ d }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="fas fa-calendar"></i> Date</label>
+                                    <input type="date" name="feedback_date" class="form-control" value="{{ today.strftime('%Y-%m-%d') }}" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label"><i class="fas fa-clock"></i> Time</label>
+                                    <input type="time" name="feedback_time" class="form-control" value="{{ current_time }}" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-pen-square"></i> Your Review *</label>
+                                <textarea name="message" class="form-control" rows="5" minlength="10" required
+                                    placeholder="Describe the food issue..."></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-camera"></i> Photo (Optional)</label>
+                                <input type="file" name="image" class="form-control" accept="image/*">
+                            </div>
+                            <button type="submit" class="btn btn-danger btn-lg w-100"><i class="fas fa-paper-plane"></i> Submit Complaint</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,455 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .admin-card, .request-card { overflow: visible !important; }
+    .attendance-actions { position: relative; }
+    .btn-mark-attendance {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.85rem;
+        background-color: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+    .btn-mark-attendance:hover {
+        background-color: #e2e8f0;
+        color: #1e293b;
+    }
+    .attendance-menu {
+        display: none;
+        position: absolute;
+        left: 0; /* Align left to avoid cutoff */
+        top: 100%;
+        margin-top: 0.25rem;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 150px;
+        z-index: 1000;
+        overflow: hidden;
+    }
+    .attendance-menu.show {
+        display: block;
+        animation: fadeIn 0.2s ease;
+    }
+    .attendance-menu-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 1rem;
+        border: none;
+        background: none;
+        font-size: 0.85rem;
+        color: #334155;
+        transition: all 0.2s;
+    }
+    .attendance-menu-item:hover { background-color: #f8fafc; }
+    .attendance-menu-item i { width: 16px; margin-right: 6px; text-align: center; }
+    .mark-present:hover { color: #10b981; }
+    .mark-absent:hover { color: #ef4444; }
+</style>
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-user-shield"></i> Warden Portal
+                    </h1>
+                    <p class="admin-subtitle">Manage hostel operations, forwarded leaves, room issues & food complaints</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/dashboard" class="btn btn-success btn-sm"><i class="fas fa-tachometer-alt"></i> Full Dashboard</a>
+                    <a href="/authorities" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forwarded Leave Requests -->
+        <div class="admin-card mb-4">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h4 style="font-size: 1.1rem; margin: 0;"><i class="fas fa-envelope-open-text"></i> Forwarded Leave Requests</h4>
+                <span class="badge bg-light text-dark">{{ forwarded_leaves|length }}</span>
+            </div>
+            <div class="card-body p-3">
+                {% if forwarded_leaves %}
+                {% for req in forwarded_leaves %}
+                <div class="request-card leave-request-row mb-3" data-request-id="{{ req.id }}">
+                    <div class="request-card-header">
+                        <div>
+                            <h6 class="mb-0">{{ req.student.name }} &middot; {{ req.student.student_class }}</h6>
+                            <small class="text-muted">Room {{ req.student.room_number or 'N/A' }}</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="status-badge status-present"><i class="fas fa-check"></i> Class Incharge Approved</span>
+                            <span class="status-badge status-present"><i class="fas fa-check"></i> Parent Approved</span>
+                        </div>
+                    </div>
+                    <div class="request-card-body">
+                        <p>{{ req.leave_message }}</p>
+                        {% if req.from_date %}
+                        <small class="text-muted"><i class="fas fa-calendar"></i> {{ req.from_date.strftime('%d %b %Y') }}{% if req.to_date %} → {{ req.to_date.strftime('%d %b %Y') }}{% endif %}</small>
+                        {% endif %}
+                        <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+                            <div class="warden-status-display">
+                                {% if req.warden_status == 'Approved' %}
+                                <span class="status-badge status-present"><i class="fas fa-check"></i> Approved</span>
+                                {% elif req.warden_status == 'Not Approved' %}
+                                <span class="status-badge status-absent"><i class="fas fa-times"></i> Not Approved</span>
+                                {% else %}
+                                <span class="status-badge status-none"><i class="fas fa-hourglass-half"></i> Pending</span>
+                                {% endif %}
+                            </div>
+                            {% if req.warden_status == 'Pending' %}
+                            <div class="attendance-actions">
+                                <button class="btn btn-mark-attendance mark-toggle-btn btn-sm" type="button"><i class="fas fa-gavel"></i> Action</button>
+                                <div class="attendance-menu" role="menu">
+                                    <button type="button" class="attendance-menu-item mark-present warden-action" data-id="{{ req.id }}" data-status="Approved">
+                                        <i class="fas fa-check-circle"></i> Approve
+                                    </button>
+                                    <button type="button" class="attendance-menu-item mark-absent warden-action" data-id="{{ req.id }}" data-status="Not Approved">
+                                        <i class="fas fa-times-circle"></i> Not Approve
+                                    </button>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="rejection-reason-box d-none mt-2" id="wardenReasonBox{{ req.id }}">
+                            <label class="form-label">Reason for Not Approving</label>
+                            <textarea class="form-control warden-rejection-input" rows="2"></textarea>
+                            <button type="button" class="btn btn-danger btn-sm mt-2 submit-warden-rejection" data-id="{{ req.id }}">Submit</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center mb-0">No forwarded leave requests.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        
+        
+        <!-- Pending Issues & Complaints (To Forward) -->
+        <div class="admin-card mb-4">
+            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                <h4 style="font-size: 1.1rem; margin: 0;"><i class="fas fa-exclamation-circle"></i> Pending Issues & Complaints</h4>
+            </div>
+            <div class="card-body p-3">
+                <div class="row">
+                    {% set has_pending = false %}
+                    {% for f in all_feedbacks %}
+                        {% if f.status != 'Solved' %}
+                        {% set has_pending = true %}
+                        <div class="col-md-6 mb-3">
+                            <div class="request-card p-3 border rounded shadow-sm">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-0">
+                                            {% if 'cook' in f.category|lower %}
+                                                <i class="fas fa-utensils text-warning"></i> 
+                                            {% elif 'carpenter' in f.category|lower %}
+                                                <i class="fas fa-hammer text-secondary"></i> 
+                                            {% elif 'electrician' in f.category|lower %}
+                                                <i class="fas fa-bolt text-danger"></i> 
+                                            {% elif 'plumb' in f.category|lower %}
+                                                <i class="fas fa-wrench text-info"></i> 
+                                            {% endif %}
+                                            {{ f.category }} (#{{ f.db_id }})
+                                        </h6>
+                                        <small class="text-muted"><i class="fas fa-user"></i> {{ f.student_name }} &middot; Room {{ f.room_number }}</small>
+                                    </div>
+                                    <span class="badge bg-danger">Pending</span>
+                                </div>
+                                <p class="mb-2 small" style="white-space: pre-wrap;">{{ f.message }}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                    <small class="text-muted"><i class="fas fa-clock"></i> {{ f.date }} {{ f.time }}</small>
+                                    
+                                    <div>
+                                        {% if f.forwarded_to %}
+                                            <span class="badge bg-success"><i class="fas fa-check"></i> Assigned to {{ f.forwarded_to|capitalize }}</span>
+                                        {% else %}
+                                            {% if f.type == 'complaint' %}
+                                                <button class="btn btn-sm btn-outline-danger" onclick="forwardChief({{ f.db_id }})"><i class="fas fa-share"></i> Forward to Chief</button>
+                                            {% endif %}
+                                            {% if f.type == 'room_issue' %}
+                                                <div class="dropdown d-inline-block">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-share"></i> Forward Worker
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size:0.85rem;">
+                                                        <li><a class="dropdown-item" href="#" onclick="forwardWorker({{ f.db_id }}, 'carpenter')"><i class="fas fa-hammer text-secondary"></i> Carpenter</a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="forwardWorker({{ f.db_id }}, 'electrician')"><i class="fas fa-bolt text-warning"></i> Electrician</a></li>
+                                                        <li><a class="dropdown-item" href="#" onclick="forwardWorker({{ f.db_id }}, 'plumber')"><i class="fas fa-wrench text-info"></i> Plumber</a></li>
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if not has_pending %}
+                        <div class="col-12"><p class="text-muted text-center mb-0">No pending complaints or issues.</p></div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Unified Feedback & Complaints -->
+
+        <div class="admin-card mb-4">
+            <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h4 style="font-size: 1.1rem; margin: 0;"><i class="fas fa-list-alt"></i> All Feedback & Complaints</h4>
+                <div class="d-flex gap-2">
+                    <select id="categoryFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterTable()">
+                        <option value="all">All Categories</option>
+                        <option value="cook">Cook / Food</option>
+                        <option value="carpenter">Carpenter Work</option>
+                        <option value="electrician">Electrician Work</option>
+                        <option value="plumber">Plumbing Work</option>
+                    </select>
+                    <button class="btn btn-sm btn-primary" onclick="exportTableToCSV('complaints.csv')"><i class="fas fa-file-csv"></i> Export CSV</button>
+                </div>
+            </div>
+            <div class="card-body p-0" style="overflow-x: auto;">
+                <table class="table table-hover align-middle mb-0" id="complaintsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Category</th>
+                            <th>Day/Date</th>
+                            <th>Time</th>
+                            <th>Complain</th>
+                                <th>Student Review</th>
+                            <th>Photo</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if all_feedbacks %}
+                        {% for f in all_feedbacks %}
+                        <tr data-category="{{ f.category|lower }}">
+                            <td><strong>#{{ f.db_id }}</strong></td>
+                            <td>
+                                {% if 'cook' in f.category|lower %}
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-utensils"></i> Cook</span>
+                                {% elif 'carpenter' in f.category|lower %}
+                                    <span class="badge bg-secondary"><i class="fas fa-hammer"></i> Carpenter</span>
+                                {% elif 'electrician' in f.category|lower %}
+                                    <span class="badge bg-danger"><i class="fas fa-bolt"></i> Electrician</span>
+                                {% elif 'plumb' in f.category|lower %}
+                                    <span class="badge bg-info text-dark"><i class="fas fa-wrench"></i> Plumber</span>
+                                {% else %}
+                                    <span class="badge bg-primary">{{ f.category }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if f.day %}{{ f.day }}<br>{% endif %}
+                                <small class="text-muted">{{ f.date }}</small>
+                            </td>
+                            <td>{{ f.time }}</td>
+                            <td>
+                                <div style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ f.message }}">
+                                    {{ f.message }}
+                                </div>
+
+                            </td>
+                            <td>
+                                {% if f.rating %}
+                                <span class="text-warning" style="font-size:0.85rem;" title="{{ f.rating_comment }}">
+                                    {% for i in range(f.rating) %}&#9733;{% endfor %}{% for i in range(5 - f.rating) %}&#9734;{% endfor %}
+                                </span>
+                                <br><small class="text-muted" style="font-size:0.7rem; display:inline-block; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ f.rating_comment[:20] }}</small>
+                                {% else %}
+                                <span class="text-muted small">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if f.image_filename %}
+                                    {% if f.type == 'complaint' %}
+                                    <a href="/static/uploads/complaint_images/{{ f.image_filename }}" target="_blank"><i class="fas fa-image"></i> View</a>
+                                    {% else %}
+                                    <a href="/static/uploads/room_issue_images/{{ f.image_filename }}" target="_blank"><i class="fas fa-image"></i> View</a>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted small">No photo</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if f.status == 'Solved' %}
+                                    <span class="text-success fw-bold"><i class="fas fa-check-circle"></i> Solved</span>
+                                {% elif f.status == 'Planning' %}
+                                    <span class="text-warning fw-bold"><i class="fas fa-clock"></i> In Progress</span>
+                                {% else %}
+                                    <span class="text-muted"><i class="fas fa-hourglass-half"></i> Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteFeedback('{{ f.type }}', {{ f.db_id }})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No complaints or feedback found.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function closeAllMenus() {
+        document.querySelectorAll('.attendance-menu.show').forEach(m => m.classList.remove('show'));
+    }
+    document.querySelectorAll('.mark-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const menu = this.closest('.attendance-actions').querySelector('.attendance-menu');
+            closeAllMenus();
+            menu.classList.toggle('show');
+        });
+    });
+    document.addEventListener('click', closeAllMenus);
+
+    document.querySelectorAll('.warden-action').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            closeAllMenus();
+            const id = this.dataset.id;
+            const status = this.dataset.status;
+            if (status === 'Not Approved') {
+                document.getElementById('wardenReasonBox' + id).classList.remove('d-none');
+                return;
+            }
+            const res = await fetch('/leave-requests/warden-update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request_id: parseInt(id), status: status })
+            });
+            if ((await res.json()).success) location.reload();
+        });
+    });
+
+    document.querySelectorAll('.submit-warden-rejection').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            const reason = document.querySelector(`#wardenReasonBox${id} .warden-rejection-input`).value.trim();
+            if (!reason) { alert('Please write a reason.'); return; }
+            const res = await fetch('/leave-requests/warden-update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request_id: parseInt(id), status: 'Not Approved', reason: reason })
+            });
+            if ((await res.json()).success) location.reload();
+        });
+    });
+
+    document.querySelectorAll('.forward-issue-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const res = await fetch('/room-issues/forward', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ issue_id: parseInt(this.dataset.id), worker: this.dataset.worker })
+            });
+            if ((await res.json()).success) location.reload();
+        });
+    });
+
+    document.querySelectorAll('.forward-chief-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const res = await fetch('/complaints/forward-chief', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ complaint_id: parseInt(this.dataset.id) })
+            });
+            if ((await res.json()).success) location.reload();
+        });
+    });
+});
+
+function filterTable() {
+    const filter = document.getElementById('categoryFilter').value.toLowerCase();
+    const rows = document.querySelectorAll('#complaintsTable tbody tr');
+    rows.forEach(row => {
+        const cat = row.dataset.category || '';
+        if (filter === 'all') {
+            row.style.setProperty('display', '', 'important');
+        } else if (cat.includes(filter)) {
+            row.style.setProperty('display', '', 'important');
+        } else {
+            row.style.setProperty('display', 'none', 'important');
+        }
+    });
+}
+
+function exportTableToCSV(filename) {
+    const rows = document.querySelectorAll('#complaintsTable tr');
+    let csv = [];
+    for (let i = 0; i < rows.length; i++) {
+        if (rows[i].style.display !== 'none' && !rows[i].classList.contains('modal')) {
+            let row = [], cols = rows[i].querySelectorAll('td, th');
+            for (let j = 0; j < cols.length - 1; j++) {
+                let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/"/g, '""');
+                row.push('"' + data + '"');
+            }
+            csv.push(row.join(','));
+        }
+    }
+    const csvFile = new Blob([csv.join('\n')], {type: "text/csv"});
+    const downloadLink = document.createElement("a");
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+}
+
+async function forwardChief(id) {
+    const res = await fetch('/complaints/forward-chief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ complaint_id: parseInt(id) })
+    });
+    if ((await res.json()).success) location.reload();
+}
+
+async function forwardWorker(id, worker) {
+    const res = await fetch('/room-issues/forward', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issue_id: parseInt(id), worker: worker })
+    });
+    if ((await res.json()).success) location.reload();
+}
+
+async function deleteFeedback(type, id) {
+    if (!confirm('Are you sure you want to delete this feedback?')) return;
+    const res = await fetch('/admin/feedback/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: type, id: parseInt(id) })
+    });
+    if ((await res.json()).success) {
+        location.reload();
+    } else {
+        alert('Failed to delete.');
+    }
+}
+</script>
+
+{% endblock %}

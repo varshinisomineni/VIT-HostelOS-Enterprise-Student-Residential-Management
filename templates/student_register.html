@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card" style="max-width: 520px;">
+        <div class="auth-header">
+            <h2><i class="fas fa-user-plus"></i> Student Registration</h2>
+            <p class="subtitle">Create your student account</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger" style="margin: 1rem;"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            <h6 class="section-title">Profile Info</h6>
+            <div class="mb-2">
+                <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
+                <input name="name" class="form-control" required>
+            </div>
+            <div class="mb-2">
+                <label class="form-label"><i class="fas fa-chalkboard"></i> Class *</label>
+                <input name="student_class" class="form-control" required>
+            </div>
+            <div class="row g-2">
+                <div class="col-6"><label class="form-label">Phone *</label><input name="phone_number" class="form-control" required></div>
+                <div class="col-6"><label class="form-label">Parent Phone *</label><input name="parent_phone" class="form-control" required></div>
+            </div>
+            <div class="row g-2 mt-1">
+                <div class="col-6"><label class="form-label"><i class="fas fa-envelope"></i> Parent Email *</label><input type="email" name="parent_email" class="form-control" required placeholder="parent@email.com"></div>
+                <div class="col-6"><label class="form-label"><i class="fas fa-chalkboard-teacher"></i> Class Incharge Email *</label><input type="email" name="class_incharge_email" class="form-control" required placeholder="teacher@email.com"></div>
+            </div>
+            <div class="row g-2 mt-1">
+                <div class="col-6"><label class="form-label">Room</label><input name="room_number" class="form-control"></div>
+                <div class="col-6"><label class="form-label">Your Email</label><input type="email" name="email" class="form-control"></div>
+            </div>
+
+            <h6 class="section-title mt-3">Account</h6>
+            <div class="mb-2"><label class="form-label">Username *</label><input name="username" class="form-control" required minlength="3"></div>
+            <div class="row g-2">
+                <div class="col-6"><label class="form-label">Password *</label><input type="password" name="password" class="form-control" required minlength="6"></div>
+                <div class="col-6"><label class="form-label">Confirm *</label><input type="password" name="confirm_password" class="form-control" required minlength="6"></div>
+            </div>
+
+            <h6 class="section-title mt-3">Security (for password recovery)</h6>
+            <div class="mb-2"><label class="form-label">Question 1 *</label><input name="security_q1" class="form-control" required></div>
+            <div class="mb-2"><label class="form-label">Answer 1 *</label><input name="security_a1" class="form-control" required></div>
+            <div class="mb-2"><label class="form-label">Question 2 *</label><input name="security_q2" class="form-control" required></div>
+            <div class="mb-3"><label class="form-label">Answer 2 *</label><input name="security_a2" class="form-control" required></div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100"><i class="fas fa-user-plus"></i> Register</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Have an account? <a href="/student/login" class="auth-link">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

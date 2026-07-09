@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+            <p class="subtitle">Login to your account</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1rem;">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            <div class="mb-3">
+                <label for="username" class="form-label"><i class="fas fa-user"></i> Username</label>
+                <input id="username" name="username" class="form-control form-control-lg"
+                       placeholder="Enter username" required autofocus>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label"><i class="fas fa-lock"></i> Password</label>
+                <input id="password" type="password" name="password" class="form-control form-control-lg"
+                       placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+
+        <div class="auth-divider"><span>New Student?</span></div>
+
+        <a href="/student/register" class="btn btn-outline-success btn-lg w-100">
+            <i class="fas fa-user-plus"></i> Create Account
+        </a>
+
+        <div class="auth-footer">
+            <a href="/student/forgot-password" class="auth-link">
+                <i class="fas fa-key"></i> Forgot Password?
+            </a>
+            <p class="mt-2 mb-0"><a href="/" class="auth-link"><i class="fas fa-home"></i> Back to Home</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

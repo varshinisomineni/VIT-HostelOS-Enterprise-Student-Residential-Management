@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-5">
+    <div class="container text-center">
+        <div class="admin-card p-5 mx-auto" style="max-width: 480px;">
+            <i class="fas fa-lock fa-3x text-danger mb-3"></i>
+            <h3>Access Denied</h3>
+            <p class="text-muted">You are logged in as <strong>{{ roles.get(admin.role, admin.role) if roles is defined else admin.role }}</strong>.</p>
+            <p class="text-muted">This portal requires: <strong>{{ required_roles|join(', ') }}</strong></p>
+            <a href="/authorities" class="btn btn-primary mt-3"><i class="fas fa-arrow-left"></i> Back to Authorities</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

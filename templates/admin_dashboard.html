@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+        <!-- Header -->
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </h1>
+                    <p class="admin-subtitle" style="font-size: 0.85rem; margin: 0.3rem 0 0 0;">Manage menu, attendance, leave & room issues</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/authorities" class="btn btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 0.8rem;">
+                        <i class="fas fa-arrow-left"></i> Authorities
+                    </a>
+                    <a href="/logout" class="btn btn-danger" style="font-size: 0.85rem; padding: 0.5rem 0.8rem;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Options -->
+        <div class="row mb-4 g-2">
+            <!-- View Complaints Option -->
+            <div class="col-12 col-sm-6 mb-2">
+                <div class="admin-card option-card">
+                    <div class="card-icon complaints-icon" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">Complaints</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;">View feedback</p>
+                        <a href="/complaints" class="btn btn-warning w-100" style="font-size: 0.85rem; padding: 0.5rem;">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Menu Option -->
+            <div class="col-12 col-sm-6 mb-2">
+                <div class="admin-card option-card">
+                    <div class="card-icon menu-icon" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fas fa-list-ul"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">Add Menu</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;">Update food items</p>
+                        <button type="button" class="btn btn-success w-100" style="font-size: 0.85rem; padding: 0.5rem;" data-bs-toggle="modal" data-bs-target="#addMenuModal">
+                            <i class="fas fa-plus-circle"></i> Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Option -->
+            <div class="col-12 col-sm-6 mb-2">
+                <div class="admin-card option-card">
+                    <div class="card-icon attendance-icon" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fas fa-clipboard-check"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">Attendance</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;">Mark daily attendance</p>
+                        <a href="/attendance" class="btn btn-success w-100" style="font-size: 0.85rem; padding: 0.5rem;">
+                            <i class="fas fa-check-double"></i> Mark
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registered Students Option -->
+            <div class="col-12 col-sm-6 mb-2">
+                <div class="admin-card option-card">
+                    <div class="card-icon enrollment-icon" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">Registered Students</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;">View & edit student details</p>
+                        <a href="/registered-students" class="btn btn-primary w-100" style="font-size: 0.85rem; padding: 0.5rem;">
+                            <i class="fas fa-id-card"></i> View
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Requests Option -->
+            <div class="col-12 col-sm-6 mb-2">
+                <div class="admin-card option-card">
+                    <div class="card-icon leave-icon" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fas fa-envelope-open-text"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">Leave Requests</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;">View leave mails & approvals</p>
+                        <a href="/leave-requests" class="btn btn-primary w-100" style="font-size: 0.85rem; padding: 0.5rem;">
+                            <i class="fas fa-inbox"></i> View
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Issues Option -->
+            <div class="col-12 col-sm-6 mb-2">
+                <div class="admin-card option-card">
+                    <div class="card-icon room-issue-icon" style="width: 60px; height: 60px; font-size: 1.8rem;">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4 style="font-size: 1.1rem; margin-bottom: 0.3rem;">Room Issues</h4>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.8rem;">Maintenance complaints</p>
+                        <a href="/room-issues" class="btn btn-warning w-100" style="font-size: 0.85rem; padding: 0.5rem;">
+                            <i class="fas fa-wrench"></i> View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Menu Display -->
+        <div class="admin-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center" style="gap: 1rem;">
+                <div class="d-flex align-items-center" style="gap: 1rem;">
+                    <h4 style="font-size: 1.1rem; margin: 0;">
+                        <i class="fas fa-calendar-alt"></i> Menu
+                    </h4>
+                    <span class="badge bg-info" style="font-size: 0.8rem;">{{ menu|length }}</span>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/rearrange" class="btn btn-info btn-sm" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+                        <i class="fas fa-arrows-alt"></i> Rearrange
+                    </a>
+                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addMenuModal" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">
+                        <i class="fas fa-plus-circle"></i> Add Item
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body p-2 p-md-3">
+                {% if menu %}
+                <div class="table-responsive">
+                    <table class="table table-hover" style="font-size: 0.9rem;">
+                        <thead class="table-header">
+                            <tr>
+                                <th style="width: 25%; font-size: 0.85rem;">Day</th>
+                                <th style="width: 20%; font-size: 0.85rem;">B</th>
+                                <th style="width: 20%; font-size: 0.85rem;">L</th>
+                                <th style="width: 15%; font-size: 0.85rem;">D</th>
+                                <th style="width: 10%; font-size: 0.85rem;">Img</th>
+                                <th style="width: 10%; font-size: 0.85rem;">Act</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in menu %}
+                            <tr class="table-row">
+                                <td style="word-break: break-word;">
+                                    <strong style="font-size: 0.9rem;">{{ item.day }}</strong>
+                                </td>
+                                <td style="font-size: 0.8rem; word-break: break-word;">{{ item.breakfast[:10] }}...</td>
+                                <td style="font-size: 0.8rem; word-break: break-word;">{{ item.lunch[:10] }}...</td>
+                                <td style="font-size: 0.8rem; word-break: break-word;">{{ item.dinner[:10] }}...</td>
+                                <td>
+                                    {% if item.image_filename %}
+                                    <span class="badge bg-success" style="font-size: 0.7rem;">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary" style="font-size: 0.7rem;">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" data-bs-toggle="modal" data-bs-target="#editMenuModal{{ item.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="/delete/{{ item.id }}" class="btn btn-sm btn-danger" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="return confirm('Delete?')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info text-center py-4" style="margin: 0; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i>
+                    <p style="margin-top: 0.5rem; margin-bottom: 0;">No menu items yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Menu Modal -->
+<div class="modal fade" id="addMenuModal" tabindex="-1">
+    <div class="modal-dialog" style="margin: 1rem auto;">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <h5 class="modal-title" style="font-size: 1rem;">
+                    <i class="fas fa-plus-circle"></i> Add Menu
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="POST" action="/add_menu" enctype="multipart/form-data">
+                <div class="modal-body" style="padding: 1rem; overflow-y: auto; max-height: 60vh;">
+                    <div class="form-group mb-2">
+                        <label for="day" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-calendar-day"></i> Day
+                        </label>
+                        <input
+                            id="day"
+                            name="day"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            placeholder="Monday"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="breakfast" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-sun"></i> Breakfast
+                        </label>
+                        <input
+                            id="breakfast"
+                            name="breakfast"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            placeholder="Eggs, Toast"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="lunch" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-utensils"></i> Lunch
+                        </label>
+                        <input
+                            id="lunch"
+                            name="lunch"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            placeholder="Rice, Curry"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="dinner" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-moon"></i> Dinner
+                        </label>
+                        <input
+                            id="dinner"
+                            name="dinner"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            placeholder="Pasta, Salad"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="snacks" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-cookie-bite"></i> Snacks (Optional)
+                        </label>
+                        <input
+                            id="snacks"
+                            name="snacks"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            placeholder="Biscuits, Tea">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label for="image" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-image"></i> Image
+                        </label>
+                        <input
+                            id="image"
+                            type="file"
+                            name="image"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            accept="image/*">
+                        <small class="text-muted" style="font-size: 0.75rem;">
+                            <i class="fas fa-info-circle"></i> Optional photo
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Footer outside modal-body so it's always visible -->
+                <div style="padding: 1rem; border-top: 1px solid #dee2e6; background: #fff; display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-success flex-fill" style="font-weight: 600;">
+                        <i class="fas fa-plus-circle"></i> Add Menu Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Edit Menu Modals -->
+{% for item in menu %}
+<div class="modal fade" id="editMenuModal{{ item.id }}" tabindex="-1">
+    <div class="modal-dialog" style="margin: 1rem auto;">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <h5 class="modal-title" style="font-size: 1rem;">
+                    <i class="fas fa-edit"></i> Edit Menu
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="POST" action="/edit_menu/{{ item.id }}" enctype="multipart/form-data">
+                <div class="modal-body" style="padding: 1rem; overflow-y: auto; max-height: 60vh;">
+                    <div class="form-group mb-2">
+                        <label for="day_{{ item.id }}" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-calendar-day"></i> Day
+                        </label>
+                        <input
+                            id="day_{{ item.id }}"
+                            name="day"
+                            value="{{ item.day }}"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="breakfast_{{ item.id }}" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-sun"></i> Breakfast
+                        </label>
+                        <input
+                            id="breakfast_{{ item.id }}"
+                            name="breakfast"
+                            value="{{ item.breakfast }}"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="lunch_{{ item.id }}" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-sun" style="color: #f59e0b;"></i> Lunch
+                        </label>
+                        <input
+                            id="lunch_{{ item.id }}"
+                            name="lunch"
+                            value="{{ item.lunch }}"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="snacks_{{ item.id }}" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-cookie"></i> Snacks
+                        </label>
+                        <input
+                            id="snacks_{{ item.id }}"
+                            name="snacks"
+                            value="{{ item.snacks }}"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;">
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label for="dinner_{{ item.id }}" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-moon"></i> Dinner
+                        </label>
+                        <input
+                            id="dinner_{{ item.id }}"
+                            name="dinner"
+                            value="{{ item.dinner }}"
+                            class="form-control"
+                            style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                            required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="image_{{ item.id }}" class="form-label" style="font-size: 0.9rem;">
+                            <i class="fas fa-image"></i> Menu Image (Optional)
+                        </label>
+                        <input
+                            type="file"
+                            id="image_{{ item.id }}"
+                            name="image"
+                            class="form-control"
+                            accept="image/*"
+                            style="font-size: 0.9rem;">
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="padding: 0.8rem; background-color: #f8f9fa;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="font-size: 0.9rem;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="font-size: 0.9rem;">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;"><i class="fas fa-tools"></i> Room Maintenance</h1>
+                    <p class="admin-subtitle">Update status: Pending, Solved, Planning</p>
+                </div>
+                <a href="/authorities" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+
+        <div class="admin-card attendance-card">
+            <div class="card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h4 style="font-size: 1.1rem; margin: 0;"><i class="fas fa-list"></i> All Room Issues</h4>
+                    <span class="badge bg-light text-dark">{{ room_issues|length }}</span>
+                </div>
+                <select id="issueFilter" class="form-select form-select-sm" style="width: auto;" onchange="filterIssues()">
+                    <option value="all">All Issues</option>
+                    <option value="carpenter">Carpenter Work</option>
+                    <option value="electrician">Electrician Work</option>
+                    <option value="plumber">Plumbing Work</option>
+                </select>
+            </div>
+            <div class="card-body p-2 p-md-3">
+                {% if room_issues %}
+                <div class="request-list">
+                    {% for issue in room_issues %}
+                    <div class="request-card issue-row" data-issue-id="{{ issue.id }}" data-status="{{ issue.status }}" data-category="{{ issue.issue_type|lower }}">
+                        <div class="request-card-header">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="student-avatar-sm">{{ issue.student.name[0]|upper }}</div>
+                                <div>
+                                    <h6 class="mb-0">{{ issue.student.name }}</h6>
+                                    <small class="text-muted">Room {{ issue.room_number or issue.student.room_number or 'N/A' }} &middot; {{ issue.issue_type or 'General' }}</small>
+                                    {% if issue.forwarded_to %}
+                                    <small class="text-success d-block">Forwarded to: {{ issue.forwarded_to|title }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <div class="issue-status-display">
+                                    {% if issue.status == 'Solved' %}
+                                    <span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>
+                                    {% elif issue.status == 'Planning' %}
+                                    <span class="status-badge status-leave"><i class="fas fa-calendar-alt"></i> Planning</span>
+                                    {% else %}
+                                    <span class="status-badge status-none"><i class="fas fa-hourglass-half"></i> Pending</span>
+                                    {% endif %}
+                                </div>
+                                <div class="attendance-actions">
+                                    <button class="btn btn-mark-attendance mark-toggle-btn" type="button"><i class="fas fa-tasks"></i> Status</button>
+                                    <div class="attendance-menu" role="menu">
+                                        <button type="button" class="attendance-menu-item mark-option issue-status-btn" data-id="{{ issue.id }}" data-status="Pending">
+                                            <i class="fas fa-hourglass-half"></i> Pending
+                                        </button>
+                                        <button type="button" class="attendance-menu-item mark-leave issue-status-btn" data-id="{{ issue.id }}" data-status="Planning">
+                                            <i class="fas fa-calendar-alt"></i> Planning
+                                        </button>
+                                        <button type="button" class="attendance-menu-item mark-present issue-status-btn" data-id="{{ issue.id }}" data-status="Solved">
+                                            <i class="fas fa-check-circle"></i> Solved
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="request-card-body">
+                            <div class="request-meta-row">
+                                <span><i class="fas fa-calendar"></i> {{ issue.issue_date.strftime('%d %b %Y') if issue.issue_date else '-' }}</span>
+                                <span><i class="fas fa-clock"></i> {{ issue.issue_time or '-' }}</span>
+                            </div>
+                            <div class="request-message-box">
+                                <strong>Complaint:</strong>
+                                <p>{{ issue.message }}</p>
+                            </div>
+                            {% if issue.image_filename %}
+                            <img src="/static/uploads/room_issue_images/{{ issue.image_filename }}" class="request-image"
+                                 data-bs-toggle="modal" data-bs-target="#issueModal{{ issue.id }}">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal fade" id="issueModal{{ issue.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-body text-center">
+                                    <img src="/static/uploads/room_issue_images/{{ issue.image_filename }}" class="complaint-modal-image">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state"><div class="empty-state-icon"><i class="fas fa-tools"></i></div><h5>No Room Issues</h5></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function closeAllMenus() {
+        document.querySelectorAll('.attendance-menu.show').forEach(m => m.classList.remove('show'));
+    }
+    document.querySelectorAll('.mark-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const menu = this.closest('.attendance-actions').querySelector('.attendance-menu');
+            const isOpen = menu.classList.contains('show');
+            closeAllMenus();
+            if (!isOpen) menu.classList.add('show');
+        });
+    });
+    document.addEventListener('click', closeAllMenus);
+    document.querySelectorAll('.attendance-menu').forEach(m => m.addEventListener('click', e => e.stopPropagation()));
+
+    document.querySelectorAll('.issue-status-btn').forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.stopPropagation();
+            closeAllMenus();
+            const id = this.dataset.id;
+            const status = this.dataset.status;
+            const res = await fetch('/room-issues/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ issue_id: parseInt(id), status: status })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const row = document.querySelector(`.issue-row[data-issue-id="${id}"]`);
+                row.dataset.status = status;
+                const display = row.querySelector('.issue-status-display');
+                const badges = {
+                    'Pending': '<span class="status-badge status-none"><i class="fas fa-hourglass-half"></i> Pending</span>',
+                    'Planning': '<span class="status-badge status-leave"><i class="fas fa-calendar-alt"></i> Planning</span>',
+                    'Solved': '<span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>'
+                };
+                display.innerHTML = badges[status];
+            }
+        });
+    });
+});
+
+  function filterIssues() {
+      const filter = document.getElementById('issueFilter').value;
+      document.querySelectorAll('.issue-row').forEach(row => {
+          const cat = row.dataset.category || '';
+          if (filter === 'all' || cat.includes(filter)) {
+              row.style.setProperty('display', 'block', 'important');
+          } else {
+              row.style.setProperty('display', 'none', 'important');
+          }
+      });
+  }
+</script>
+
+{% endblock %}

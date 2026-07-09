@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-4 py-md-5" style="min-height: 85vh; display: flex; align-items: center; background: linear-gradient(135deg, #10b981 0%, #047857 100%);">
+    <div class="container px-3 px-md-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="page-header text-center text-white mb-5">
+                    <h1 class="page-title text-white">
+                        <i class="fas fa-users"></i> Families & Students Hub
+                    </h1>
+                    <p class="page-subtitle text-white-50">Select your portal to continue</p>
+                </div>
+
+                <div class="row g-4 justify-content-center">
+                    <div class="col-12 col-md-5">
+                        <div class="portal-card h-100">
+                            <div class="card-body text-center p-4 d-flex flex-column h-100">
+                                <div class="icon-circle mb-3 mx-auto">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <h4>Student Portal</h4>
+                                <p class="text-muted small flex-grow-1">Apply for leave, report room issues, and view your meal plan.</p>
+                                <a href="/student/login" class="btn btn-primary w-100 mt-3">Student Login</a>
+                                <a href="/student/register" class="btn btn-outline-primary w-100 mt-2">New Student? Register</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-md-5">
+                        <div class="portal-card h-100">
+                            <div class="card-body text-center p-4 d-flex flex-column h-100">
+                                <div class="icon-circle mb-3 mx-auto" style="color: #8b5cf6; background: #f3e8ff;">
+                                    <i class="fas fa-user-friends"></i>
+                                </div>
+                                <h4>Parent Portal</h4>
+                                <p class="text-muted small flex-grow-1">Review your child's leave requests and attendance alerts.</p>
+                                <a href="/parent/login" class="btn btn-primary w-100 mt-3" style="background-color: #8b5cf6; border-color: #8b5cf6;">Parent Login</a>
+                                <a href="/parent/register" class="btn btn-outline-primary w-100 mt-2" style="color: #8b5cf6; border-color: #8b5cf6;">New Parent? Register</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <a href="/" class="btn btn-light"><i class="fas fa-arrow-left"></i> Back to Main Menu</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.portal-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.portal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+.btn-outline-primary:hover {
+    background-color: #8b5cf6 !important;
+    color: white !important;
+}
+</style>
+{% endblock %}

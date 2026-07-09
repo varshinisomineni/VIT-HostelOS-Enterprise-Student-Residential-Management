@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header"><h2>Verify Identity</h2><p class="subtitle">Answer your security questions</p></div>
+        {% if error %}<div class="alert alert-danger" style="margin:1rem;">{{ error }}</div>{% endif %}
+        <form method="POST" class="auth-form">
+            <div class="security-badge"><i class="fas fa-shield-alt"></i> Security Check</div>
+            <div class="mb-3">
+                <label class="form-label">Q1</label>
+                <p class="text-muted">{{ student.security_question_1 }}</p>
+                <input name="answer_1" class="form-control form-control-lg" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Q2</label>
+                <p class="text-muted">{{ student.security_question_2 }}</p>
+                <input name="answer_2" class="form-control form-control-lg" required>
+            </div>
+            <button type="submit" class="btn btn-success btn-lg w-100">Verify</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

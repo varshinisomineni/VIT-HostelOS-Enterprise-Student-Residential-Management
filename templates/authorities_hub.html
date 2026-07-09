@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-shield-alt"></i> Authorities Portal
+                    </h1>
+                    <p class="admin-subtitle">Welcome, {{ admin.username }} &middot; {{ roles.get(admin.role, admin.role) }}</p>
+                </div>
+                <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <p class="text-muted mb-4">Select your portal to manage leave requests, room issues, and hostel operations.</p>
+
+        <div class="row g-3">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="admin-card option-card h-100">
+                    <div class="card-icon leave-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Class Incharge</h4>
+                        <p style="font-size:0.85rem;">Approve student leave requests</p>
+                        <a href="/portal/class-incharge" class="btn btn-primary w-100 btn-sm"><i class="fas fa-door-open"></i> Open Portal</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="admin-card option-card h-100">
+                    <div class="card-icon attendance-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-user-shield"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Warden</h4>
+                        <p style="font-size:0.85rem;">Menu, attendance, leave & room issues</p>
+                        <a href="/portal/warden" class="btn btn-success w-100 btn-sm"><i class="fas fa-door-open"></i> Open Portal</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="admin-card option-card h-100">
+                    <div class="card-icon room-issue-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-bolt"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Electrician</h4>
+                        <p style="font-size:0.85rem;">Electrical maintenance work orders</p>
+                        <a href="/portal/electrician" class="btn btn-warning w-100 btn-sm"><i class="fas fa-door-open"></i> Open Portal</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="admin-card option-card h-100">
+                    <div class="card-icon enrollment-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-hammer"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Carpenter</h4>
+                        <p style="font-size:0.85rem;">Carpentry maintenance work orders</p>
+                        <a href="/portal/carpenter" class="btn btn-secondary w-100 btn-sm"><i class="fas fa-door-open"></i> Open Portal</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="admin-card option-card h-100">
+                    <div class="card-icon room-issue-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-faucet"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Plumber</h4>
+                        <p style="font-size:0.85rem;">Plumbing maintenance work orders</p>
+                        <a href="/portal/plumber" class="btn btn-info w-100 btn-sm"><i class="fas fa-door-open"></i> Open Portal</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="admin-card option-card h-100">
+                    <div class="card-icon complaints-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-utensils"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Chief Cook</h4>
+                        <p style="font-size:0.85rem;">Food complaint management</p>
+                        <a href="/portal/chief" class="btn btn-danger w-100 btn-sm"><i class="fas fa-door-open"></i> Open Portal</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="admin-card option-card h-100">
+                    <div class="card-icon complaints-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-user-tie"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Dean</h4>
+                        <p style="font-size:0.85rem;">Overview of leaves & complaints</p>
+                        <a href="/portal/dean" class="btn btn-info w-100 btn-sm"><i class="fas fa-door-open"></i> Open Portal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

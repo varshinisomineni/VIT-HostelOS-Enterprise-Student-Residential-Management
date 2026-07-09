@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.3rem;">Verify Identity</h2>
+            <p class="subtitle" style="font-size: 0.9rem;">Answer your security questions</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 1rem; font-size: 0.9rem;">
+            <i class="fas fa-exclamation-circle"></i> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="auth-form">
+            <div class="security-badge" style="font-size: 0.9rem; padding: 0.8rem; margin-bottom: 1.5rem;">
+                <i class="fas fa-shield-alt"></i> Security Check
+            </div>
+
+            <div class="mb-3">
+                <label for="answer_1" class="form-label" style="font-size: 0.9rem;">
+                    <i class="fas fa-question-circle"></i> Q1
+                </label>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">{{ admin.security_question_1 }}</p>
+                <input
+                    id="answer_1"
+                    type="text"
+                    name="answer_1"
+                    class="form-control form-control-lg"
+                    style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                    placeholder="Your answer"
+                    required>
+            </div>
+
+            <div class="mb-4">
+                <label for="answer_2" class="form-label" style="font-size: 0.9rem;">
+                    <i class="fas fa-question-circle"></i> Q2
+                </label>
+                <p style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">{{ admin.security_question_2 }}</p>
+                <input
+                    id="answer_2"
+                    type="text"
+                    name="answer_2"
+                    class="form-control form-control-lg"
+                    style="font-size: 0.95rem; padding: 0.5rem 0.7rem;"
+                    placeholder="Your answer"
+                    required>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-lg w-100" style="font-size: 0.95rem; padding: 0.6rem;">
+                <i class="fas fa-check-circle"></i> Verify
+            </button>
+        </form>
+
+        <div class="auth-footer" style="padding: 1rem;">
+            <p style="font-size: 0.9rem;">
+                <a href="/forgot-password" class="auth-link">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

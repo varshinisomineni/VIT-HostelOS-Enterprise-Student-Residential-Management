@@ -1,0 +1,316 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-user-tie"></i> Dean Portal
+                    </h1>
+                    <p class="admin-subtitle">Comprehensive reports & analytics dashboard</p>
+                </div>
+                <a href="/authorities" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <ul class="nav nav-tabs mb-4" id="deanTabs" role="tablist" style="font-size:0.9rem;">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#overview"><i class="fas fa-chart-pie"></i> Overview</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#attendance"><i class="fas fa-clipboard-check"></i> Attendance</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#leaves"><i class="fas fa-envelope"></i> Leaves</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#carpenterTab"><i class="fas fa-hammer"></i> Carpenter</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#electricianTab"><i class="fas fa-bolt"></i> Electrician</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#plumberTab"><i class="fas fa-faucet"></i> Plumber</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#chiefTab"><i class="fas fa-utensils"></i> Chief Cook</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <!-- Overview Tab -->
+            <div class="tab-pane fade show active" id="overview">
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#198754;margin:0;">{{ present_count }}</h3>
+                            <small class="text-muted">Present Today</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#dc3545;margin:0;">{{ absent_count }}</h3>
+                            <small class="text-muted">Absent Today</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#0dcaf0;margin:0;">{{ leave_att_count }}</h3>
+                            <small class="text-muted">On Leave</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#6c757d;margin:0;">{{ students|length }}</h3>
+                            <small class="text-muted">Total Students</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#667eea;margin:0;">{{ leave_requests|length }}</h3>
+                            <small class="text-muted">Total Leave Requests</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#ffc107;margin:0;">{{ room_issues|length }}</h3>
+                            <small class="text-muted">Total Room Issues</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#dc3545;margin:0;">{{ food_complaints|length }}</h3>
+                            <small class="text-muted">Food Complaints</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="admin-card p-3 text-center">
+                            <h3 style="color:#198754;margin:0;">{{ (carpenter_issues + electrician_issues + plumber_issues)|selectattr('status', 'equalto', 'Solved')|list|length }}</h3>
+                            <small class="text-muted">Issues Solved</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Tab -->
+            <div class="tab-pane fade" id="attendance">
+                <div class="admin-card">
+                    <div class="card-header-custom"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-clipboard-check"></i> Attendance Report ({{ today.strftime('%d %b %Y') }})</h4></div>
+                    <div class="card-body p-3">
+                        <div class="row g-3 mb-3">
+                            <div class="col-4"><div class="p-2 text-center" style="background:#d1e7dd;border-radius:8px;"><strong>{{ present_count }}</strong><br><small>Present</small></div></div>
+                            <div class="col-4"><div class="p-2 text-center" style="background:#f8d7da;border-radius:8px;"><strong>{{ absent_count }}</strong><br><small>Absent</small></div></div>
+                            <div class="col-4"><div class="p-2 text-center" style="background:#cff4fc;border-radius:8px;"><strong>{{ leave_att_count }}</strong><br><small>Leave</small></div></div>
+                        </div>
+                        <p class="text-muted" style="font-size:0.9rem;">Total registered students: {{ students|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leaves Tab -->
+            <div class="tab-pane fade" id="leaves">
+                <div class="admin-card">
+                    <div class="card-header-custom d-flex justify-content-between"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-envelope"></i> Leave Requests Report</h4><span class="badge bg-light text-dark">{{ leave_requests|length }}</span></div>
+                    <div class="card-body p-3">
+                        <div class="mb-3 mx-auto" style="max-width: 500px;">
+                            <canvas id="leaveChart" height="200"></canvas>
+                        </div>
+                        {% if leave_requests %}
+                        {% for req in leave_requests %}
+                        <div class="student-request-item">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <strong>{{ req.student.name }}</strong> &middot; {{ req.student.student_class }}
+                                    <small class="text-muted d-block">{{ req.submitted_at.strftime('%d %b %Y') if req.submitted_at else '' }}</small>
+                                </div>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <span class="status-badge {% if req.teacher_status == 'Approved' %}status-present{% elif req.teacher_status == 'Not Approved' %}status-absent{% else %}status-none{% endif %}">
+                                        Teacher: {{ req.teacher_status or 'Pending' }}
+                                    </span>
+                                    {% if req.forwarded_to_warden %}
+                                    <span class="status-badge {% if req.warden_status == 'Approved' %}status-present{% elif req.warden_status == 'Not Approved' %}status-absent{% else %}status-none{% endif %}">
+                                        Warden: {{ req.warden_status or 'Pending' }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <p class="mb-0 mt-1" style="font-size:0.9rem;">{{ req.leave_message[:100] }}{% if req.leave_message|length > 100 %}...{% endif %}</p>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="text-muted mb-0 text-center">No leave requests.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Carpenter Tab -->
+            <div class="tab-pane fade" id="carpenterTab">
+                <div class="admin-card">
+                    <div class="card-header-custom d-flex justify-content-between"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-hammer"></i> Carpenter Work Report</h4><span class="badge bg-light text-dark">{{ carpenter_issues|length }}</span></div>
+                    <div class="card-body p-3">
+                        <div class="mb-3 mx-auto" style="max-width: 500px;"><canvas id="carpenterChart" height="200"></canvas></div>
+                        {% for issue in carpenter_issues %}
+                        <div class="student-request-item">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <strong>{{ issue.student.name }}</strong> &middot; Room {{ issue.room_number }}
+                                    <small class="text-muted d-block">{{ issue.submitted_at.strftime('%d %b %Y, %A') if issue.submitted_at else '' }}</small>
+                                </div>
+                                {% if issue.status == 'Solved' %}<span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>
+                                {% elif issue.status == 'Planning' %}<span class="status-badge status-leave">In Progress</span>
+                                {% else %}<span class="status-badge status-none">Pending</span>{% endif %}
+                            </div>
+                            <p class="mb-1 mt-1" style="font-size:0.85rem;"><strong>Problem:</strong> {{ issue.message[:150] }}{% if issue.message|length > 150 %}...{% endif %}</p>
+                            {% if issue.solution_note %}<p class="mb-1" style="font-size:0.85rem;color:#198754;"><strong>Solution:</strong> {{ issue.solution_note }}</p>{% endif %}
+                            {% if issue.solved_at %}<small class="text-muted">Solved on: {{ issue.solved_at.strftime('%d %b %Y, %A') }}</small>{% endif %}
+                            {% if issue.rating %}
+                            <div class="mt-1"><span class="text-warning">{% for i in range(issue.rating) %}★{% endfor %}{% for i in range(5 - issue.rating) %}☆{% endfor %}</span>
+                            {% if issue.rating_comment %}<small class="text-muted"> "{{ issue.rating_comment }}"</small>{% endif %}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if not carpenter_issues %}<p class="text-muted mb-0 text-center">No carpenter work orders.</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Electrician Tab -->
+            <div class="tab-pane fade" id="electricianTab">
+                <div class="admin-card">
+                    <div class="card-header-custom d-flex justify-content-between"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-bolt"></i> Electrician Work Report</h4><span class="badge bg-light text-dark">{{ electrician_issues|length }}</span></div>
+                    <div class="card-body p-3">
+                        <div class="mb-3 mx-auto" style="max-width: 500px;"><canvas id="electricianChart" height="200"></canvas></div>
+                        {% for issue in electrician_issues %}
+                        <div class="student-request-item">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <strong>{{ issue.student.name }}</strong> &middot; Room {{ issue.room_number }}
+                                    <small class="text-muted d-block">{{ issue.submitted_at.strftime('%d %b %Y, %A') if issue.submitted_at else '' }}</small>
+                                </div>
+                                {% if issue.status == 'Solved' %}<span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>
+                                {% elif issue.status == 'Planning' %}<span class="status-badge status-leave">In Progress</span>
+                                {% else %}<span class="status-badge status-none">Pending</span>{% endif %}
+                            </div>
+                            <p class="mb-1 mt-1" style="font-size:0.85rem;"><strong>Problem:</strong> {{ issue.message[:150] }}{% if issue.message|length > 150 %}...{% endif %}</p>
+                            {% if issue.solution_note %}<p class="mb-1" style="font-size:0.85rem;color:#198754;"><strong>Solution:</strong> {{ issue.solution_note }}</p>{% endif %}
+                            {% if issue.solved_at %}<small class="text-muted">Solved on: {{ issue.solved_at.strftime('%d %b %Y, %A') }}</small>{% endif %}
+                            {% if issue.rating %}
+                            <div class="mt-1"><span class="text-warning">{% for i in range(issue.rating) %}★{% endfor %}{% for i in range(5 - issue.rating) %}☆{% endfor %}</span>
+                            {% if issue.rating_comment %}<small class="text-muted"> "{{ issue.rating_comment }}"</small>{% endif %}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if not electrician_issues %}<p class="text-muted mb-0 text-center">No electrician work orders.</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plumber Tab -->
+            <div class="tab-pane fade" id="plumberTab">
+                <div class="admin-card">
+                    <div class="card-header-custom d-flex justify-content-between"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-faucet"></i> Plumber Work Report</h4><span class="badge bg-light text-dark">{{ plumber_issues|length }}</span></div>
+                    <div class="card-body p-3">
+                        <div class="mb-3 mx-auto" style="max-width: 500px;"><canvas id="plumberChart" height="200"></canvas></div>
+                        {% for issue in plumber_issues %}
+                        <div class="student-request-item">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <strong>{{ issue.student.name }}</strong> &middot; Room {{ issue.room_number }}
+                                    <small class="text-muted d-block">{{ issue.submitted_at.strftime('%d %b %Y, %A') if issue.submitted_at else '' }}</small>
+                                </div>
+                                {% if issue.status == 'Solved' %}<span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>
+                                {% elif issue.status == 'Planning' %}<span class="status-badge status-leave">In Progress</span>
+                                {% else %}<span class="status-badge status-none">Pending</span>{% endif %}
+                            </div>
+                            <p class="mb-1 mt-1" style="font-size:0.85rem;"><strong>Problem:</strong> {{ issue.message[:150] }}{% if issue.message|length > 150 %}...{% endif %}</p>
+                            {% if issue.solution_note %}<p class="mb-1" style="font-size:0.85rem;color:#198754;"><strong>Solution:</strong> {{ issue.solution_note }}</p>{% endif %}
+                            {% if issue.solved_at %}<small class="text-muted">Solved on: {{ issue.solved_at.strftime('%d %b %Y, %A') }}</small>{% endif %}
+                            {% if issue.rating %}
+                            <div class="mt-1"><span class="text-warning">{% for i in range(issue.rating) %}★{% endfor %}{% for i in range(5 - issue.rating) %}☆{% endfor %}</span>
+                            {% if issue.rating_comment %}<small class="text-muted"> "{{ issue.rating_comment }}"</small>{% endif %}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if not plumber_issues %}<p class="text-muted mb-0 text-center">No plumber work orders.</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chief Cook Tab -->
+            <div class="tab-pane fade" id="chiefTab">
+                <div class="admin-card">
+                    <div class="card-header-custom d-flex justify-content-between"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-utensils"></i> Chief Cook Report</h4><span class="badge bg-light text-dark">{{ chief_complaints|length }}</span></div>
+                    <div class="card-body p-3">
+                        <div class="mb-3 mx-auto" style="max-width: 500px;"><canvas id="chiefChart" height="200"></canvas></div>
+                        {% for c in chief_complaints %}
+                        <div class="student-request-item">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <strong>{{ c.student_name or 'Anonymous' }}</strong>
+                                    <small class="text-muted d-block">{{ c.day or '' }} &middot; {{ c.feedback_date.strftime('%d %b %Y, %A') if c.feedback_date else '' }}</small>
+                                </div>
+                                {% if c.status == 'Solved' %}<span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>
+                                {% elif c.status == 'Planning' %}<span class="status-badge status-leave">In Progress</span>
+                                {% else %}<span class="status-badge status-none">Pending</span>{% endif %}
+                            </div>
+                            <p class="mb-1 mt-1" style="font-size:0.85rem;"><strong>Complaint:</strong> {{ c.message[:150] }}{% if c.message|length > 150 %}...{% endif %}</p>
+                            {% if c.solution_note %}<p class="mb-1" style="font-size:0.85rem;color:#198754;"><strong>Solution:</strong> {{ c.solution_note }}</p>{% endif %}
+                            {% if c.solved_at %}<small class="text-muted">Solved on: {{ c.solved_at.strftime('%d %b %Y, %A') }}</small>{% endif %}
+                            {% if c.rating %}
+                            <div class="mt-1"><span class="text-warning">{% for i in range(c.rating) %}★{% endfor %}{% for i in range(5 - c.rating) %}☆{% endfor %}</span>
+                            {% if c.rating_comment %}<small class="text-muted"> "{{ c.rating_comment }}"</small>{% endif %}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% if not chief_complaints %}<p class="text-muted mb-0 text-center">No food complaints forwarded to chief.</p>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartData = JSON.parse('{{ chart_data_json|safe }}');
+    const labels = chartData.labels;
+
+    function createChart(canvasId, label1, data1, color1, label2, data2, color2) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: label1, data: data1, borderColor: color1, backgroundColor: color1 + '33', fill: true, tension: 0.3 },
+                    { label: label2, data: data2, borderColor: color2, backgroundColor: color2 + '33', fill: true, tension: 0.3 }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' }, title: { display: true, text: 'Daily Trend (This Month)' } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+    }
+
+    // Leave chart
+    const leaveCtx = document.getElementById('leaveChart');
+    if (leaveCtx) {
+        new Chart(leaveCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Leave Requests', data: chartData.leave_requests, backgroundColor: '#667eea88', borderColor: '#667eea', borderWidth: 1 }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' }, title: { display: true, text: 'Leave Requests (This Month)' } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+    }
+
+    createChart('carpenterChart', 'Complaints', chartData.carpenter_complaints, '#6c757d', 'Solved', chartData.carpenter_solved, '#198754');
+    createChart('electricianChart', 'Complaints', chartData.electrician_complaints, '#ffc107', 'Solved', chartData.electrician_solved, '#198754');
+    createChart('plumberChart', 'Complaints', chartData.plumber_complaints, '#0dcaf0', 'Solved', chartData.plumber_solved, '#198754');
+    createChart('chiefChart', 'Complaints', chartData.chief_complaints, '#dc3545', 'Solved', chartData.chief_solved, '#198754');
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0" style="border-radius: 12px;">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-plus fa-3x" style="color: #8b5cf6;"></i>
+                        <h2 class="mt-3">Parent Registration</h2>
+                        <p class="text-muted">Create an account to monitor your child's leaves and attendance.</p>
+                    </div>
+
+                    {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <form method="POST" action="/parent/register">
+                        <h5 class="mb-3 text-primary border-bottom pb-2">Parent Details</h5>
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-md-6">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-md-6">
+                                <label for="email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="phone_number" class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" id="phone_number" name="phone_number" required>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3 text-primary border-bottom pb-2 mt-4">Student Linkage</h5>
+                        <div class="alert alert-info py-2" style="font-size: 0.85rem;">
+                            <i class="fas fa-info-circle"></i> These details must match what the student used during their registration.
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-md-6">
+                                <label for="student_name" class="form-label">Student's Full Name</label>
+                                <input type="text" class="form-control" id="student_name" name="student_name" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="student_email" class="form-label">Student's Email</label>
+                                <input type="email" class="form-control" id="student_email" name="student_email" required>
+                            </div>
+                        </div>
+
+                        <h5 class="mb-3 text-primary border-bottom pb-2 mt-4">Security Questions</h5>
+                        <div class="mb-3">
+                            <label for="security_q1" class="form-label">Question 1</label>
+                            <select class="form-select" id="security_q1" name="security_q1" required>
+                                <option value="">Select a question...</option>
+                                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                <option value="What city were you born in?">What city were you born in?</option>
+                                <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="security_a1" class="form-label">Answer 1</label>
+                            <input type="text" class="form-control" id="security_a1" name="security_a1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="security_q2" class="form-label">Question 2</label>
+                            <select class="form-select" id="security_q2" name="security_q2" required>
+                                <option value="">Select a question...</option>
+                                <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                                <option value="What is your favorite book?">What is your favorite book?</option>
+                                <option value="What street did you grow up on?">What street did you grow up on?</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="security_a2" class="form-label">Answer 2</label>
+                            <input type="text" class="form-control" id="security_a2" name="security_a2" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3" style="background-color: #8b5cf6; border-color: #8b5cf6;">Register</button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="mb-0 text-muted">Already have an account? <a href="/parent/login" style="color: #8b5cf6;">Login here</a></p>
+                        <a href="/student_parent_hub" class="text-decoration-none d-block mt-2"><i class="fas fa-arrow-left"></i> Back to Hub</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

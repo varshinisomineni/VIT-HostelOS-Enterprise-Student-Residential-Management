@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+
+        <div class="admin-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                <div>
+                    <h1 class="admin-title" style="font-size: 1.5rem; margin: 0;">
+                        <i class="fas fa-user-graduate"></i> Student Portal
+                    </h1>
+                    <p class="admin-subtitle">Welcome, {{ student.name }} &middot; Room {{ student.room_number or 'N/A' }}</p>
+                </div>
+                <a href="/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+
+        <div class="student-profile-card mb-4">
+            <div class="student-avatar">{{ student.name[0]|upper }}</div>
+            <div class="student-profile-info">
+                <h5>{{ student.name }}</h5>
+                <p><i class="fas fa-chalkboard"></i> {{ student.student_class }}</p>
+                <p><i class="fas fa-door-open"></i> Room {{ student.room_number or 'Not assigned' }}</p>
+                <p><i class="fas fa-user"></i> @{{ student.username or 'N/A' }}</p>
+            </div>
+        </div>
+
+        <!-- Attendance Status -->
+        <div class="admin-card mb-4">
+            <div class="card-header-custom"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-clipboard-check"></i> My Attendance</h4></div>
+            <div class="card-body p-3">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <strong>Today ({{ today.strftime('%d %b %Y') }}):</strong>
+                    {% if today_attendance %}
+                        {% if today_attendance.status == 'Present' %}
+                        <span class="status-badge status-present"><i class="fas fa-check"></i> Present</span>
+                        {% elif today_attendance.status == 'Absent' %}
+                        <span class="status-badge status-absent"><i class="fas fa-times"></i> Absent</span>
+                        {% elif today_attendance.status == 'Leave' %}
+                        <span class="status-badge status-leave"><i class="fas fa-calendar"></i> Leave</span>
+                        {% endif %}
+                    {% else %}
+                    <span class="status-badge status-none"><i class="fas fa-minus"></i> Not Marked Yet</span>
+                    {% endif %}
+                </div>
+                {% if attendance_history %}
+                <h6 style="font-size:0.9rem;">Recent Records</h6>
+                {% for att in attendance_history %}
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                    <span style="font-size:0.85rem;">{{ att.date.strftime('%d %b %Y') }}</span>
+                    {% if att.status == 'Present' %}
+                    <span class="status-badge status-present" style="font-size:0.75rem;">Present</span>
+                    {% elif att.status == 'Absent' %}
+                    <span class="status-badge status-absent" style="font-size:0.75rem;">Absent</span>
+                    {% else %}
+                    <span class="status-badge status-leave" style="font-size:0.75rem;">Leave</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted mb-0" style="font-size:0.9rem;">No attendance records yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-4">
+                <div class="admin-card option-card">
+                    <div class="card-icon leave-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Leave Request</h4>
+                        <a href="/student/leave" class="btn btn-primary w-100 btn-sm"><i class="fas fa-paper-plane"></i> Apply</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="admin-card option-card">
+                    <div class="card-icon room-issue-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-tools"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Room Issues</h4>
+                        <a href="/student/room-issue" class="btn btn-warning w-100 btn-sm"><i class="fas fa-wrench"></i> Report</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="admin-card option-card">
+                    <div class="card-icon complaints-icon" style="width:55px;height:55px;font-size:1.6rem;"><i class="fas fa-comment-dots"></i></div>
+                    <div class="card-content">
+                        <h4 style="font-size:1rem;">Food Complaint</h4>
+                        <a href="/student/food-complaint" class="btn btn-danger w-100 btn-sm"><i class="fas fa-utensils"></i> Submit</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leave Requests History -->
+        <div class="admin-card mb-3">
+            <div class="card-header-custom"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-envelope"></i> My Leave Requests</h4></div>
+            <div class="card-body p-3">
+                {% if leave_requests %}
+                {% for req in leave_requests %}
+                <div class="student-request-item">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <strong>{{ req.submitted_at.strftime('%d %b %Y, %H:%M') if req.submitted_at else 'Submitted' }}</strong>
+                            {% if req.from_date %}<small class="text-muted d-block">{{ req.from_date.strftime('%d %b') }}{% if req.to_date %} → {{ req.to_date.strftime('%d %b %Y') }}{% endif %}</small>{% endif %}
+                        </div>
+                        <div class="d-flex gap-1 flex-wrap">
+                            {% if req.parent_status == 'Approved' %}
+                            <span class="status-badge status-present" style="font-size:0.75rem;"><i class="fas fa-user-friends"></i> Parent: Approved</span>
+                            {% elif req.parent_status == 'Not Approved' %}
+                            <span class="status-badge status-absent" style="font-size:0.75rem;"><i class="fas fa-user-friends"></i> Parent: Not Approved</span>
+                            {% else %}
+                            <span class="status-badge status-none" style="font-size:0.75rem;"><i class="fas fa-user-friends"></i> Parent: Pending</span>
+                            {% endif %}
+                            
+                            {% if req.teacher_status == 'Approved' %}
+                            <span class="status-badge status-present" style="font-size:0.75rem;"><i class="fas fa-chalkboard-teacher"></i> Teacher: Approved</span>
+                            {% elif req.teacher_status == 'Not Approved' %}
+                            <span class="status-badge status-absent" style="font-size:0.75rem;"><i class="fas fa-chalkboard-teacher"></i> Teacher: Not Approved</span>
+                            {% else %}
+                            <span class="status-badge status-none" style="font-size:0.75rem;"><i class="fas fa-chalkboard-teacher"></i> Teacher: Pending</span>
+                            {% endif %}
+                            
+                            {% if req.forwarded_to_warden %}
+                                {% if req.warden_status == 'Approved' %}
+                                <span class="status-badge status-present" style="font-size:0.75rem;"><i class="fas fa-user-shield"></i> Warden: Approved</span>
+                                {% elif req.warden_status == 'Not Approved' %}
+                                <span class="status-badge status-absent" style="font-size:0.75rem;"><i class="fas fa-user-shield"></i> Warden: Not Approved</span>
+                                {% else %}
+                                <span class="status-badge status-none" style="font-size:0.75rem;"><i class="fas fa-user-shield"></i> Warden: Pending</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="mb-1 mt-2" style="font-size:0.9rem;">{{ req.leave_message[:120] }}{% if req.leave_message|length > 120 %}...{% endif %}</p>
+                    {% if req.teacher_status == 'Not Approved' and req.teacher_rejection_reason %}
+                    <div class="rejection-display mt-2">
+                        <strong class="text-danger"><i class="fas fa-info-circle"></i> Teacher Reason:</strong>
+                        <p class="mb-0">{{ req.teacher_rejection_reason }}</p>
+                    </div>
+                    {% elif req.warden_status == 'Not Approved' and req.warden_rejection_reason %}
+                    <div class="rejection-display mt-2">
+                        <strong class="text-danger"><i class="fas fa-info-circle"></i> Warden Reason:</strong>
+                        <p class="mb-0">{{ req.warden_rejection_reason }}</p>
+                    </div>
+                    {% elif req.status == 'Not Approved' and req.rejection_reason %}
+                    <div class="rejection-display mt-2">
+                        <strong class="text-danger"><i class="fas fa-info-circle"></i> Reason:</strong>
+                        <p class="mb-0">{{ req.rejection_reason }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted mb-0 text-center">No leave requests yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Room Issues History -->
+        <div class="admin-card mb-3">
+            <div class="card-header-custom"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-tools"></i> My Room Issues</h4></div>
+            <div class="card-body p-3">
+                {% if room_issues %}
+                {% for issue in room_issues %}
+                <div class="student-request-item">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <strong>Room {{ issue.room_number or student.room_number }}</strong>
+                            <span class="badge bg-info" style="font-size:0.7rem;">{{ issue.issue_type or 'General' }}</span>
+                            <small class="text-muted d-block">{{ issue.issue_date.strftime('%d %b %Y') if issue.issue_date else '' }} {{ issue.issue_time or '' }}</small>
+                            {% if issue.forwarded_to %}
+                            <small class="text-muted">Forwarded to: {{ issue.forwarded_to|title }}</small>
+                            {% endif %}
+                        </div>
+                        {% if issue.status == 'Solved' %}
+                        <span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>
+                        {% elif issue.status == 'Planning' %}
+                        <span class="status-badge status-leave"><i class="fas fa-calendar-alt"></i> Planning</span>
+                        {% else %}
+                        <span class="status-badge status-none"><i class="fas fa-hourglass-half"></i> Pending</span>
+                        {% endif %}
+                    </div>
+                    <p class="mb-0 mt-2" style="font-size:0.9rem;">{{ issue.message[:120] }}{% if issue.message|length > 120 %}...{% endif %}</p>
+                    {% if issue.solution_note %}
+                    <div class="mt-2 p-2" style="background:#e8f5e9;border-radius:8px;font-size:0.85rem;">
+                        <strong class="text-success"><i class="fas fa-check-circle"></i> Solution:</strong> {{ issue.solution_note }}
+                    </div>
+                    {% endif %}
+                    {% if issue.status == 'Solved' %}
+                        {% if issue.rating %}
+                        <div class="mt-2 p-2" style="background:#fff8e1;border-radius:8px;font-size:0.85rem;">
+                            <strong>Your Rating:</strong>
+                            <span class="text-warning" style="font-size:1.1rem;">{% for i in range(issue.rating) %}★{% endfor %}{% for i in range(5 - issue.rating) %}☆{% endfor %}</span>
+                            {% if issue.rating_comment %}<p class="mb-0 mt-1" style="font-size:0.85rem;">"{{ issue.rating_comment }}"</p>{% endif %}
+                        </div>
+                        {% else %}
+                        <div class="mt-2 p-2 rating-box" style="background:#f3f4f6;border-radius:8px;" data-type="issue" data-id="{{ issue.id }}">
+                            <strong style="font-size:0.85rem;"><i class="fas fa-star"></i> Rate this resolution:</strong>
+                            <div class="star-rating mt-1">
+                                {% for i in range(1, 6) %}
+                                <span class="star" data-value="{{ i }}" style="font-size:1.5rem;cursor:pointer;color:#ddd;">★</span>
+                                {% endfor %}
+                            </div>
+                            <textarea class="form-control mt-2 rating-comment" rows="2" placeholder="Write a comment (optional)..." style="font-size:0.85rem;"></textarea>
+                            <button class="btn btn-sm btn-primary mt-2 submit-rating-btn"><i class="fas fa-paper-plane"></i> Submit Rating</button>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted mb-0 text-center">No room issues reported yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Food Complaints History -->
+        <div class="admin-card">
+            <div class="card-header-custom"><h4 style="font-size:1rem;margin:0;"><i class="fas fa-utensils"></i> My Food Complaints</h4></div>
+            <div class="card-body p-3">
+                {% if food_complaints %}
+                {% for c in food_complaints %}
+                <div class="student-request-item">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <div>
+                            <strong>{{ c.day or 'Food' }}</strong>
+                            <small class="text-muted d-block">{{ c.feedback_date.strftime('%d %b %Y') if c.feedback_date else '' }} {{ c.feedback_time or '' }}</small>
+                        </div>
+                        {% if c.status == 'Solved' %}
+                        <span class="status-badge status-present"><i class="fas fa-check"></i> Solved</span>
+                        {% elif c.status == 'Planning' %}
+                        <span class="status-badge status-leave"><i class="fas fa-calendar-alt"></i> Planning</span>
+                        {% else %}
+                        <span class="status-badge status-none"><i class="fas fa-hourglass-half"></i> Pending</span>
+                        {% endif %}
+                    </div>
+                    <p class="mb-0 mt-2" style="font-size:0.9rem;">{{ c.message[:120] }}{% if c.message|length > 120 %}...{% endif %}</p>
+                    {% if c.solution_note %}
+                    <div class="mt-2 p-2" style="background:#e8f5e9;border-radius:8px;font-size:0.85rem;">
+                        <strong class="text-success"><i class="fas fa-check-circle"></i> Solution:</strong> {{ c.solution_note }}
+                    </div>
+                    {% endif %}
+                    {% if c.status == 'Solved' %}
+                        {% if c.rating %}
+                        <div class="mt-2 p-2" style="background:#fff8e1;border-radius:8px;font-size:0.85rem;">
+                            <strong>Your Rating:</strong>
+                            <span class="text-warning" style="font-size:1.1rem;">{% for i in range(c.rating) %}★{% endfor %}{% for i in range(5 - c.rating) %}☆{% endfor %}</span>
+                            {% if c.rating_comment %}<p class="mb-0 mt-1" style="font-size:0.85rem;">"{{ c.rating_comment }}"</p>{% endif %}
+                        </div>
+                        {% else %}
+                        <div class="mt-2 p-2 rating-box" style="background:#f3f4f6;border-radius:8px;" data-type="complaint" data-id="{{ c.id }}">
+                            <strong style="font-size:0.85rem;"><i class="fas fa-star"></i> Rate this resolution:</strong>
+                            <div class="star-rating mt-1">
+                                {% for i in range(1, 6) %}
+                                <span class="star" data-value="{{ i }}" style="font-size:1.5rem;cursor:pointer;color:#ddd;">★</span>
+                                {% endfor %}
+                            </div>
+                            <textarea class="form-control mt-2 rating-comment" rows="2" placeholder="Write a comment (optional)..." style="font-size:0.85rem;"></textarea>
+                            <button class="btn btn-sm btn-primary mt-2 submit-rating-btn"><i class="fas fa-paper-plane"></i> Submit Rating</button>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted mb-0 text-center">No food complaints yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Star rating hover & click
+    document.querySelectorAll('.rating-box').forEach(box => {
+        const stars = box.querySelectorAll('.star');
+        let selectedRating = 0;
+
+        stars.forEach(star => {
+            star.addEventListener('mouseenter', function() {
+                const val = parseInt(this.dataset.value);
+                stars.forEach(s => {
+                    s.style.color = parseInt(s.dataset.value) <= val ? '#f59e0b' : '#ddd';
+                });
+            });
+
+            star.addEventListener('mouseleave', function() {
+                stars.forEach(s => {
+                    s.style.color = parseInt(s.dataset.value) <= selectedRating ? '#f59e0b' : '#ddd';
+                });
+            });
+
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.value);
+                stars.forEach(s => {
+                    s.style.color = parseInt(s.dataset.value) <= selectedRating ? '#f59e0b' : '#ddd';
+                });
+            });
+        });
+
+        const submitBtn = box.querySelector('.submit-rating-btn');
+        submitBtn.addEventListener('click', async function() {
+            if (selectedRating === 0) {
+                alert('Please select a star rating.');
+                return;
+            }
+            const type = box.dataset.type;
+            const id = box.dataset.id;
+            const comment = box.querySelector('.rating-comment').value.trim();
+
+            let url = '';
+            let body = {};
+            if (type === 'issue') {
+                url = '/room-issues/rate';
+                body = { issue_id: parseInt(id), rating: selectedRating, comment: comment };
+            } else {
+                url = '/complaints/rate';
+                body = { complaint_id: parseInt(id), rating: selectedRating, comment: comment };
+            }
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            if ((await res.json()).success) location.reload();
+        });
+    });
+});
+</script>
+
+{% endblock %}

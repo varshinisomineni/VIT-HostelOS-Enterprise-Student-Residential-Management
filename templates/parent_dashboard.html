@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid py-3 py-md-4">
+    <div class="container px-2 px-md-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h1 style="font-size: 1.5rem; margin: 0;"><i class="fas fa-user-friends" style="color:#8b5cf6;"></i> Parent Dashboard</h1>
+                <p class="text-muted mb-0">Welcome, {{ parent.name }} | Student: {{ student.name if student else 'Not Linked' }}</p>
+            </div>
+            <a href="/parent/logout" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        {% if not student %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i> We couldn't find a student matching the name and email you provided during registration. Please ensure the student has registered with those exact details.
+        </div>
+        {% else %}
+        
+        <div class="row g-4">
+            <!-- Notifications Column -->
+            <div class="col-12 col-lg-5">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                        <h4 style="font-size: 1.1rem; margin: 0;"><i class="fas fa-bell text-warning"></i> Notifications</h4>
+                        {% set unread_count = notifications|selectattr('is_read', 'equalto', false)|list|length %}
+                        {% if unread_count > 0 %}
+                        <button class="btn btn-sm btn-outline-secondary" onclick="markNotificationsRead()">Mark All Read</button>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if notifications %}
+                            <div class="list-group list-group-flush">
+                            {% for notif in notifications %}
+                                <div class="list-group-item px-0 {% if not notif.is_read %}bg-light{% endif %} border-bottom">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1 text-danger"><i class="fas fa-exclamation-circle"></i> {{ notif.title }}</h6>
+                                        <small class="text-muted">{{ notif.created_at.strftime('%d %b, %H:%M') }}</small>
+                                    </div>
+                                    <p class="mb-1 small">{{ notif.message }}</p>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-bell-slash fa-2x mb-2" style="opacity: 0.5;"></i>
+                                <p class="mb-0">No notifications.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Requests Column -->
+            <div class="col-12 col-lg-7">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                        <h4 style="font-size: 1.1rem; margin: 0;"><i class="fas fa-envelope-open-text text-primary"></i> Leave Requests</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if leaves %}
+                            {% for req in leaves %}
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
+                                    <div>
+                                        <span class="badge bg-secondary mb-1">From: {{ req.from_date.strftime('%d %b %Y') if req.from_date else 'N/A' }}</span>
+                                        <span class="badge bg-secondary mb-1">To: {{ req.to_date.strftime('%d %b %Y') if req.to_date else 'N/A' }}</span>
+                                    </div>
+                                    <small class="text-muted">Applied: {{ req.submitted_at.strftime('%d %b %Y') }}</small>
+                                </div>
+                                <p class="small mb-3 pb-2 border-bottom"><strong>Reason:</strong> {{ req.leave_message }}</p>
+                                
+                                {% if req.parent_status == 'Pending' %}
+                                <div class="alert alert-info py-2 small mb-2"><i class="fas fa-info-circle"></i> Awaiting your approval</div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-success flex-grow-1" onclick="updateLeave({{ req.id }}, 'Approved')"><i class="fas fa-check"></i> Approve</button>
+                                    <button class="btn btn-sm btn-danger flex-grow-1" onclick="rejectLeave({{ req.id }})"><i class="fas fa-times"></i> Reject</button>
+                                </div>
+                                <div id="reject-box-{{ req.id }}" class="mt-2" style="display:none;">
+                                    <input type="text" id="reason-{{ req.id }}" class="form-control form-control-sm mb-2" placeholder="Reason for rejection (required)">
+                                    <button class="btn btn-sm btn-danger w-100" onclick="submitRejection({{ req.id }})">Submit Rejection</button>
+                                </div>
+                                {% else %}
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <span class="badge {% if req.parent_status == 'Approved' %}bg-success{% else %}bg-danger{% endif %} p-2">
+                                            Parent: {{ req.parent_status }}
+                                        </span>
+                                        <span class="badge {% if req.teacher_status == 'Approved' %}bg-success{% elif req.teacher_status == 'Not Approved' %}bg-danger{% else %}bg-secondary{% endif %} p-2">
+                                            Class Incharge: {{ req.teacher_status }}
+                                        </span>
+                                        <span class="badge {% if req.warden_status == 'Approved' %}bg-success{% elif req.warden_status == 'Not Approved' %}bg-danger{% else %}bg-secondary{% endif %} p-2">
+                                            Warden: {{ req.warden_status }}
+                                        </span>
+                                    </div>
+                                    {% if req.parent_status == 'Not Approved' and req.parent_rejection_reason %}
+                                        <div class="small text-danger mt-2"><strong>Your Rejection Reason:</strong> {{ req.parent_rejection_reason }}</div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-envelope-open fa-3x mb-3" style="opacity: 0.3;"></i>
+                                <p>No leave requests found.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function rejectLeave(id) {
+    document.getElementById('reject-box-' + id).style.display = 'block';
+}
+
+function submitRejection(id) {
+    const reason = document.getElementById('reason-' + id).value;
+    if (!reason.trim()) {
+        alert('Please enter a rejection reason.');
+        return;
+    }
+    updateLeave(id, 'Not Approved', reason);
+}
+
+function updateLeave(id, status, reason='') {
+    fetch('/parent/leave/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ leave_id: id, status: status, reason: reason })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Error updating status');
+        }
+    });
+}
+
+function markNotificationsRead() {
+    fetch('/parent/notifications/read', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) window.location.reload();
+    });
+}
+</script>
+{% endblock %}
