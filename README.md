@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🏛️ HostelOS Enterprise Student Residential Management Platform
+# 🏛️ VIT HostelOS Enterprise Student Residential Management Platform
 
 ### *Enterprise-Grade Hostel Operations Platform*
 
