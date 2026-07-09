@@ -12,7 +12,7 @@
 
 <br/>
 
-> **A full-stack, role-based hostel management system engineered for VIT University (Vadapalani Campus).**  
+> **A full-stack, role-based hostel management system engineered for VIT University .**  
 > Digitizes the entire hostel lifecycle — from meal scheduling and food complaints to multi-tier leave approvals, room maintenance dispatch, attendance tracking, and parent oversight — all through dedicated, access-controlled portals.
 
 <br/>
@@ -530,7 +530,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 <div align="center">
 
-**Built with ❤️ for VIT University, Vadapalani Campus**
+**Built with ❤️ for VIT University**
 
 *Digitizing hostel operations, one module at a time.*
 
